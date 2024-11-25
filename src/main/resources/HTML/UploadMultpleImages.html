@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload with JavaScript</title>
+</head>
+<body>
+<h1>Upload Images</h1>
+<input type="file" id="imageInput" accept="image/jpeg, image/jpg, image/png" multiple>
+<button onclick="uploadImage()">Upload Image</button>
+<div id="response"></div>
+
+<script>
+    function updateFileSelection() {
+        const input = document.getElementById('imageInput');
+        const responseDiv = document.getElementById('response');
+
+        if (input.files.length > 1) {
+            responseDiv.innerText = input.files.length + ' files selected.';
+        } else if (input.files.length == 1) {
+            responseDiv.innerText = '1 file selected.';
+        } else {
+            responseDiv.innerText = 'No files selected.';
+        }
+    }
+    document.getElementById('imageInput').addEventListener('change', updateFileSelection);
+    function uploadImage() {
+        const input = document.getElementById('imageInput');
+        if (!input.files.length) {
+            document.getElementById('response').innerText = 'Please select a file first.';
+            return;
+        }
+
+        const formData = new FormData();
+        for (let i = 0; i < input.files.length; i++) {
+            formData.append('files', input.files[i]);
+        }
+
+        fetch('http://1.92.132.159:8080/files/uploadMultiple', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json()) // assuming the server responds with JSON
+            .then(data => {
+                var message = data.message;
+                document.getElementById('response').innerText = 'Upload successful: ' + message;
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Upload failed: ' + error;
+            });
+    }
+</script>
+</body>
+</html>

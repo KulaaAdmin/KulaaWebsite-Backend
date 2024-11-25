@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload with JavaScript</title>
+</head>
+<body>
+<h1>Upload an Image</h1>
+<input type="file" id="imageInput" accept="image/jpeg, image/jpg, image/png">
+<button onclick="uploadImage()">Upload Image</button>
+<div id="response"></div>
+
+<script>
+    function uploadImage() {
+        const input = document.getElementById('imageInput');
+        if (!input.files[0]) {
+            document.getElementById('response').innerText = 'Please select a file first.';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+
+        fetch('http://1.92.132.159:8080/files/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json()) // assuming the server responds with JSON
+            .then(data => {
+                var message = data.message;
+                document.getElementById('response').innerText = 'Upload successful: ' + message;
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Upload failed: ' + error;
+            });
+    }
+</script>
+</body>
+</html>
