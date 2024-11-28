@@ -888,12 +888,12 @@ public class RestaurantServiceImpl implements IRestaurantService {
 					// 1. Match restaurant name
 					boolean nameMatch = restaurant.getName().toLowerCase().contains(finalKeyword);
 					// 2. Match restaurant tag
-					boolean tagMatch = 	restaurant.getTags().stream()
-							.map(restaurantTagId -> tagsRepository.findById(restaurantTagId))
-							.filter(Optional::isPresent)
-							.map(Optional::get)
-							.map(Tags::getTagName)
-							.anyMatch(restaurantTagName -> restaurantTagName.toLowerCase().contains(finalKeyword));
+//					boolean tagMatch = 	restaurant.getTags().stream()
+//							.map(restaurantTagId -> tagsRepository.findById(restaurantTagId))
+//							.filter(Optional::isPresent)
+//							.map(Optional::get)
+//							.map(Tags::getTagName)
+//							.anyMatch(restaurantTagName -> restaurantTagName.toLowerCase().contains(finalKeyword));
 					// 3. Match restaurant location
 					Optional<String> regionName = Optional.empty();
 					Optional<String> areaName = Optional.empty();
@@ -907,7 +907,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 					}
 					boolean locationMatch = regionName.map(name -> name.toLowerCase().contains(finalKeyword)).orElse(false) ||
 							areaName.map(name -> name.toLowerCase().contains(finalKeyword)).orElse(false);
-					return nameMatch || tagMatch || locationMatch;
+					return nameMatch || locationMatch;
 				}).collect(Collectors.toList());
 
         if (filteredRestaurants.isEmpty()) {
