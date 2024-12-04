@@ -23,7 +23,10 @@ public class UsersResponseDTOConverter {
         dto.setLastName(users.getLastName());
         dto.setAdmin(users.isAdmin());
         dto.setSuspended(users.isSuspend());
+        if(users.getBookMarksId()!=null)
         dto.setBookMarksId(users.getBookMarksId().toString());
+        else
+        dto.setBookMarksId(null);
 
         return dto;
 
