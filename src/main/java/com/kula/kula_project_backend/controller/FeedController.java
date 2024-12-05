@@ -21,7 +21,7 @@ public class FeedController {
     public ResponseEntity<Page<Posts>> getFeed(
             @PathVariable int page,
             @RequestParam(defaultValue = "5") int pageSize) {
-        if (page < 0 || pageSize <= 0) {
+        if (page < 0) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(feedService.getFeed(page, pageSize));
