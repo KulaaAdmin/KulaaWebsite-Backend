@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * PostsResponseDTOConverter is a utility class that provides a method to convert a Posts entity to a PostsResponseDTO.
@@ -54,10 +56,15 @@ public class PostsResponseDTOConverter {
         dto.setUpdatedAt(posts.getUpdatedAt());
         dto.setImageURL(posts.getImageURL());
         dto.setImages(posts.getImages());
-        dto.setNegativeReview(posts.getNegativeReview());
-        dto.setPositiveReview(posts.getPositiveReview());
+        //dto.setNegativeReview(posts.getNegativeReview());
+        //dto.setPositiveReview(posts.getPositiveReview());
         dto.setVideoURL(posts.getVideoURL());
-        dto.setRating(posts.getRating());
+        // keep one decimal in rating
+        double roundedRating = BigDecimal.valueOf(posts.getRating())
+                         .setScale(1, RoundingMode.HALF_UP) 
+                         .doubleValue();
+        dto.setRating(roundedRating);
+        //dto.setRating(posts.getRating());
         return dto;
     }
 }

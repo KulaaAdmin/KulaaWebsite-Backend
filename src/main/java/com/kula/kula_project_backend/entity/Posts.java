@@ -88,17 +88,17 @@ public class Posts implements Serializable {
     @Field("images")
     private ArrayList<String> images;
 
-    /**
-     * The negative review of the post.
-     */
-    @Field("negative_review")
-    private String negativeReview;
+    // /**
+    //  * The negative review of the post.
+    //  */
+    // @Field("negative_review")
+    // private String negativeReview;
 
-    /**
-     * The positive review of the post.
-     */
-    @Field("positive_review")
-    private String positiveReview;
+    // /**
+    //  * The positive review of the post.
+    //  */
+    // @Field("positive_review")
+    // private String positiveReview;
 
     /**
      * The video URL associated with the post.
@@ -110,5 +110,5 @@ public class Posts implements Serializable {
      * The rating of the post.
      */
     @Field("rating")
-    private int rating;
+    private double rating;
 }
