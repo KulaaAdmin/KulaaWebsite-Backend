@@ -117,7 +117,7 @@ public class UsersServiceImpl implements IUsersService {
 
             // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
             Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone number: " + emailOrPhoneNumber));
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
 
             String token = jwtTokenProvider.generateToken(authentication);
 
@@ -129,7 +129,7 @@ public class UsersServiceImpl implements IUsersService {
 
         } catch (AuthenticationException e) {
             log.error("Login failed for: {}. Error: {}", emailOrPhoneNumber, e.getMessage());
-            return new ResponseResult(401, "Invalid email/phone number or password");
+            return new ResponseResult(401, "Invalid email or password");
         }
     }
 
