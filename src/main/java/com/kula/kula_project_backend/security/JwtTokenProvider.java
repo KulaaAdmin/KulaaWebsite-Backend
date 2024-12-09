@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import com.kula.kula_project_backend.entity.Users;
 
 import java.util.Date;
 /**
@@ -35,14 +36,22 @@ public class JwtTokenProvider {
      * @return A JWT string.
      */
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
+        String username= authentication.getName();
+        System.out.println(username);
+        
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMillis);
 
         return Jwts.builder()
+                //Header
+                .setHeaderParam("typ","JWT")
+                .setHeaderParam("alg", "HS512")
+                //Playload
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
+                //Signature
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
@@ -57,8 +66,10 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token.replace("Bearer ", ""))
                 .getBody();
 
-        return claims.getSubject();
+        return claims.get("username",String.class);
     }
+    
+
     /**
      * Validates the JWT.
      * @param authToken The JWT string.

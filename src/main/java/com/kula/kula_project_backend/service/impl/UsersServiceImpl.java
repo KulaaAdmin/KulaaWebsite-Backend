@@ -107,6 +107,10 @@ public class UsersServiceImpl implements IUsersService {
     @Override
     public ResponseResult login(String emailOrPhoneNumber, String password) {
         try {
+            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
+            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
+            
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password)
             );
@@ -115,12 +119,9 @@ public class UsersServiceImpl implements IUsersService {
             // 获取 UserDetails
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
-            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
 
             String token = jwtTokenProvider.generateToken(authentication);
-
+            
             Map<String, Object> authInfo = new HashMap<>();
             authInfo.put("userId", user.getId().toString());
             authInfo.put("token", token);
