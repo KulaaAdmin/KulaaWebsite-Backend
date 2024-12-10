@@ -10,6 +10,8 @@ import com.kula.kula_project_backend.query.PostsQuery;
 import com.kula.kula_project_backend.service.IPostsService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -164,6 +166,15 @@ public class PostsController {
         return postsService.getPostsAmountByUserId(id);
     }
 
+    @GetMapping("/feed/{page}")
+    public ResponseEntity<Page<Posts>> getFeed(
+            @PathVariable int page,
+            @RequestParam(defaultValue = "5") int pageSize) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(postsService.getFeed(page, pageSize));
+    }
 
 
 
