@@ -189,6 +189,7 @@ public class UsersServiceImpl implements IUsersService {
         users.setSuspend(false);
         users.setCreatedAt(new Date());
         users.setUpdatedAt(new Date());
+        users.setUserType(usersDTO.getUserType());
 
         UsersRepository.insert(users);
 
@@ -281,6 +282,9 @@ public class UsersServiceImpl implements IUsersService {
             }
             if (usersDTO.getPasswordHash() != null) {
                 user.setPasswordHash(usersDTO.getPasswordHash());
+            }
+            if (usersDTO.getUserType() != null){
+                user.setUserType(usersDTO.getUserType());
             }
             user.setUpdatedAt(new Date());
 

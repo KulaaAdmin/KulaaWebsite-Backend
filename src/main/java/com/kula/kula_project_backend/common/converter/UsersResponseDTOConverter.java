@@ -30,6 +30,7 @@ public class UsersResponseDTOConverter {
         if (users.getBookMarksId() != null){
             dto.setBookMarksId(users.getBookMarksId().toString());
         }
+        dto.setUserType(users.getUserType());
 
         return dto;
 
