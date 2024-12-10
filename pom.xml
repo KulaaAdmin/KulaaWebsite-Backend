@@ -135,6 +135,13 @@
 <!--            <optional>true</optional>-->
 <!--            <scope>runtime</scope>   &lt;!&ndash; To avoid running in production environments &ndash;&gt;-->
 <!--        </dependency>-->
+<!-- swagger -->
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-ui</artifactId>
+    <version>1.6.15</version>
+</dependency>
+
 
 
     </dependencies>
