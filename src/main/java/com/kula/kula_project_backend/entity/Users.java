@@ -110,4 +110,18 @@ public class Users {
      */
     @Field("suspend")
     private boolean suspend;
+
+    /**
+     * A Enum field indicate the role of a user
+     * */
+    public enum UserType {
+        CUSTOMER,
+        INFLUENCER,
+        RESTAURANT_MANAGER,
+        KULAA_STUFF,
+        ADMIN,
+    }
+
+    @Field("role")
+    private UserType userType;
 }
