@@ -107,6 +107,10 @@ public class UsersServiceImpl implements IUsersService {
     @Override
     public ResponseResult login(String emailOrPhoneNumber, String password) {
         try {
+            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
+            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
+            
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password)
             );
@@ -115,12 +119,9 @@ public class UsersServiceImpl implements IUsersService {
             // 获取 UserDetails
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
-            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone number: " + emailOrPhoneNumber));
 
             String token = jwtTokenProvider.generateToken(authentication);
-
+            
             Map<String, Object> authInfo = new HashMap<>();
             authInfo.put("userId", user.getId().toString());
             authInfo.put("token", token);
@@ -129,7 +130,7 @@ public class UsersServiceImpl implements IUsersService {
 
         } catch (AuthenticationException e) {
             log.error("Login failed for: {}. Error: {}", emailOrPhoneNumber, e.getMessage());
-            return new ResponseResult(401, "Invalid email/phone number or password");
+            return new ResponseResult(401, "Invalid email or password");
         }
     }
 
@@ -152,7 +153,7 @@ public class UsersServiceImpl implements IUsersService {
                 return new ResponseResult(400, "Email already exists.");
             }
             users.setEmail(email);
-            users.setPhoneNumber(null);
+            // users.setPhoneNumber(null);
 
             // Check if the front end request has a valid verification code attached inside the request body.
             if (usersDTO.getVerificationCode() != null) {
@@ -179,11 +180,12 @@ public class UsersServiceImpl implements IUsersService {
             return new ResponseResult(400, "Invalid registration method.");
         }
 
+        users.setPhoneNumber(usersDTO.getPhoneNumber());
         users.setFirstName(usersDTO.getFirstName());
         users.setLastName(usersDTO.getLastName());
         users.setUsername(usersDTO.getUsername());
         users.setPasswordHash(passwordEncoder.encode(usersDTO.getPassword()));
-        users.setAdmin(!usersDTO.isAdmin());
+        users.setAdmin(usersDTO.isAdmin());
         users.setSuspend(false);
         users.setCreatedAt(new Date());
         users.setUpdatedAt(new Date());
