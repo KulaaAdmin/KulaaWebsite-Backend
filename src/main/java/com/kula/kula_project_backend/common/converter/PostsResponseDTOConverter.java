@@ -56,8 +56,6 @@ public class PostsResponseDTOConverter {
         dto.setUpdatedAt(posts.getUpdatedAt());
         dto.setImageURL(posts.getImageURL());
         dto.setImages(posts.getImages());
-        //dto.setNegativeReview(posts.getNegativeReview());
-        //dto.setPositiveReview(posts.getPositiveReview());
         dto.setVideoURL(posts.getVideoURL());
         // keep one decimal in rating
         double roundedRating = BigDecimal.valueOf(posts.getRating())

@@ -163,12 +163,4 @@ public class PostsController {
     public ResponseResult getPostsAmountByUserId(@PathVariable ObjectId id) {
         return postsService.getPostsAmountByUserId(id);
     }
-
-
-
-
-
-
-
-
 }
