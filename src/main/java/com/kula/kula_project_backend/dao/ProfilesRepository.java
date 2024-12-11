@@ -2,16 +2,18 @@ package com.kula.kula_project_backend.dao;
 
 import com.kula.kula_project_backend.entity.Profiles;
 import org.bson.types.ObjectId;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
-/**
- * ProfilesRepository is a Spring Data MongoDB repository for the Profiles entity.
- */
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
 public interface ProfilesRepository extends MongoRepository<Profiles, ObjectId> {
-    // Future methods for the repository can be added here.
-    // For example, to find profiles by a specific user, you might add:
-    //
-    // Optional<Profiles> findByUserId(ObjectId userId);
-    //
-    // This method would return the profile associated with a specific user.
+    /**
+     * Find all profiles by location ID.
+     *
+     * @param locationId The location ID to filter profiles.
+     * @return List of profiles matching the location ID.
+     */
+    List<Profiles> findByLocationId(ObjectId locationId);
 }

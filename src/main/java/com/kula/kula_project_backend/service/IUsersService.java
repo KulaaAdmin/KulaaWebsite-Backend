@@ -5,9 +5,7 @@ import com.kula.kula_project_backend.dto.requestdto.UsersDTO;
 import com.kula.kula_project_backend.query.UsersQuery;
 import org.bson.types.ObjectId;
 
-import java.util.List;
-
-public interface IUsersService{
+public interface IUsersService {
 
     ResponseResult save(UsersDTO usersDTO);
 
@@ -23,12 +21,13 @@ public interface IUsersService{
 
     ResponseResult login(String emailOrPhoneNumber, String password);
 
+    ResponseResult suggestFriends(ObjectId userId); // New method
+
     ResponseResult sendEmail(String to, String subject, String text);
 
     boolean saveEmailToRedis(String email, String code);
 
     boolean checkEmailCode(String email, String code);
-
 
     ResponseResult getAverageRating(ObjectId userId);
 
@@ -37,6 +36,5 @@ public interface IUsersService{
     ResponseResult verifyCode(String phoneNumber, String code);
 
     ResponseResult getBookmarks(ObjectId userId);
-
 
 }

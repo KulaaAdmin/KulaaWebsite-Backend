@@ -1,7 +1,7 @@
 package com.kula.kula_project_backend.controller;
 
-import com.kula.kula_project_backend.dto.requestdto.LoginDTO;
 import com.kula.kula_project_backend.common.ResponseResult;
+import com.kula.kula_project_backend.dto.requestdto.LoginDTO;
 import com.kula.kula_project_backend.dto.requestdto.UsersDTO;
 import com.kula.kula_project_backend.query.UsersQuery;
 import com.kula.kula_project_backend.service.impl.EmailServiceImpl;
@@ -13,8 +13,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+
 /**
- * UsersController is a REST controller that provides endpoints for managing users.
+ * UsersController is a REST controller that provides endpoints for managing users,
+ * including login, registration, profile management, and friend suggestions.
  */
 @RestController
 @RequestMapping("/users")
@@ -25,6 +27,7 @@ public class UsersController {
 
     @Autowired
     private EmailServiceImpl emailService;
+
     /**
      * Endpoint to login a user.
      * @param loginRequest The login request containing the user's email or phone number and password.
@@ -34,6 +37,7 @@ public class UsersController {
     public ResponseResult login(@RequestBody LoginDTO loginRequest) {
         return usersService.login(loginRequest.getEmailOrPhoneNumber(), loginRequest.getPassword());
     }
+
     /**
      * Endpoint to save a new user.
      * @param usersDTO The user data transfer object containing the user details.
@@ -43,6 +47,7 @@ public class UsersController {
     public ResponseResult save(@RequestBody @Validated UsersDTO usersDTO) {
         return usersService.save(usersDTO);
     }
+
     /**
      * Endpoint to get all users.
      * @return The result of the get operation.
@@ -51,6 +56,7 @@ public class UsersController {
     public ResponseResult getAll() {
         return usersService.getAll();
     }
+
     /**
      * Endpoint to update a user.
      * @param usersDTO The user data transfer object containing the updated user details.
@@ -58,9 +64,9 @@ public class UsersController {
      */
     @PostMapping("/update")
     public ResponseResult update(@RequestBody @Validated UsersDTO usersDTO) {
-//        return usersService.update(usersDTO);
-        return null;
+        return usersService.update(usersDTO);
     }
+
     /**
      * Endpoint to get a list of users by parameters.
      * @param usersQuery The users query object containing the query parameters.
@@ -68,8 +74,9 @@ public class UsersController {
      */
     @PostMapping("/listByParams")
     public ResponseResult listByParams(@RequestBody UsersQuery usersQuery) {
-    return usersService.listByParams(usersQuery);
+        return usersService.listByParams(usersQuery);
     }
+
     /**
      * Endpoint to get a user by its id.
      * @param id The id of the user.
@@ -79,6 +86,7 @@ public class UsersController {
     public ResponseResult getById(@PathVariable ObjectId id) {
         return usersService.getById(id);
     }
+
     /**
      * Endpoint to assign a profile to a user.
      * @param userId The id of the user.
@@ -89,6 +97,7 @@ public class UsersController {
     public ResponseResult assignProfile(@RequestParam ObjectId userId, @RequestParam ObjectId profileId) {
         return usersService.assignProfile(userId, profileId);
     }
+
     /**
      * Endpoint to send an email.
      * @param to The recipient's email address.
@@ -103,6 +112,7 @@ public class UsersController {
         }
         return usersService.sendEmail(to, subject, text);
     }
+
     /**
      * Endpoint to get the average rating of a user.
      * @param userId The id of the user.
@@ -112,6 +122,7 @@ public class UsersController {
     public ResponseResult getAverageRating(@PathVariable ObjectId userId) {
         return usersService.getAverageRating(userId);
     }
+
     /**
      * Endpoint to send an SMS verification code.
      * @param request The request containing the phone number.
@@ -122,6 +133,7 @@ public class UsersController {
         String phoneNumber = request.get("phoneNumber");
         return usersService.sendSMS(phoneNumber);
     }
+
     /**
      * Endpoint to verify an SMS code.
      * @param request The request containing the phone number and the code.
@@ -133,6 +145,7 @@ public class UsersController {
         String code = request.get("code");
         return usersService.verifyCode(phoneNumber, code);
     }
+
     /**
      * Endpoint to get a user's bookmarks.
      * @param userId The id of the user.
@@ -141,7 +154,20 @@ public class UsersController {
     @GetMapping("/getBookmarks/{userId}")
     public ResponseResult getBookmarks(@PathVariable ObjectId userId) {
         return usersService.getBookmarks(userId);
-
     }
 
+    /**
+     * Endpoint to suggest friends for a user.
+     * @param userId The ID of the user for whom to suggest friends.
+     * @return A ResponseResult containing friend suggestions.
+     */
+    @GetMapping("/suggestFriends/{userId}")
+    public ResponseResult suggestFriends(@PathVariable String userId) {
+        try {
+            ObjectId objectId = new ObjectId(userId);
+            return usersService.suggestFriends(objectId);
+        } catch (IllegalArgumentException e) {
+            return new ResponseResult(400, "Invalid userId format");
+        }
+    }
 }
