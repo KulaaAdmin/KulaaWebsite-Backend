@@ -9,11 +9,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Users is an entity class that represents a user in the application.
- * It is annotated as a MongoDB document and is stored in the "users" collection.
+ * It is annotated as a MongoDB document and is stored in the "users"
+ * collection.
  */
 @Data
 @Document(collection = "users")
@@ -113,13 +119,13 @@ public class Users {
 
     /**
      * A Enum field indicate the role of a user
-     * */
+     */
     public enum UserType {
         CUSTOMER,
         INFLUENCER,
         RESTAURANT_MANAGER,
         KULAA_STUFF,
-        ADMIN,
+        ADMIN;
     }
 
     @Field("role")
