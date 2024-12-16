@@ -75,6 +75,7 @@ public class UsersServiceImpl implements IUsersService {
             return new ResponseResult(200, "Profile assigned successfully");
         }
         return new ResponseResult(404, "User not found");
+        //
     }
 
     @Override
