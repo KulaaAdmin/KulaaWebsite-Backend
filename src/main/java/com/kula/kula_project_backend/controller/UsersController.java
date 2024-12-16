@@ -103,6 +103,11 @@ public class UsersController {
         }
         return usersService.sendEmail(to, subject, text);
     }
+
+    @PostMapping("/verifyEmailCode")
+    public ResponseResult verifyEmailCode(@RequestParam String email, @RequestParam String code) {
+        return usersService.checkEmailCode(email, code);
+    }
     /**
      * Endpoint to get the average rating of a user.
      * @param userId The id of the user.

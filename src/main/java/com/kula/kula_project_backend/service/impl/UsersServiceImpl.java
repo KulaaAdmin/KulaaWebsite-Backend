@@ -155,20 +155,6 @@ public class UsersServiceImpl implements IUsersService {
             users.setEmail(email);
             // users.setPhoneNumber(null);
 
-            // Check if the front end request has a valid verification code attached inside the request body.
-            if (usersDTO.getVerificationCode() != null) {
-                boolean ifEmailCodeValid = this.checkEmailCode(email, usersDTO.getVerificationCode());
-                if (!ifEmailCodeValid) {
-                    return new ResponseResult(400, "Invalid verification code");
-                } else {
-                    // If the verification code is valid, the code will be removed from the Redis database.
-                    RBucket<String> bucket = redisson.getBucket(email);
-                    bucket.delete();
-                }
-            } else {
-                return new ResponseResult(400, "Verification code is required.");
-            }
-
         } else if ("phone".equals(usersDTO.getRegistrationMethod())) {
             String phoneNumber = usersDTO.getPhoneNumber();
             if (phoneNumber != null && UsersRepository.existsByPhoneNumber(phoneNumber)) {
@@ -434,16 +420,21 @@ public class UsersServiceImpl implements IUsersService {
      * @return boolean indicating whether the verification code is valid.
      */
     @Override
-    public boolean checkEmailCode(String email, String code) {
-        RBucket<String> bucket = redisson.getBucket(email);
-        String codeInRedis = bucket.get();
-        if (codeInRedis == null) {
-            return false;
+    public ResponseResult checkEmailCode(String email, String code) {
+        if(email!=null && code!=null){
+            RBucket<String> bucket = redisson.getBucket(email);
+            String codeInRedis = bucket.get();
+            if (codeInRedis == null) {
+                return new ResponseResult(400, "Verification code expired or does not exist.");
+            }
+            if (codeInRedis.equals(code)) {
+                bucket.delete();
+                return new ResponseResult(200, "Verification Success.");
+            }
+            return new ResponseResult(400,"Incorrect verification code.");
+        }else{
+            return new ResponseResult(400, "Verification code must not be null.");
         }
-        if (codeInRedis.equals(code)) {
-            return true;
-        }
-        return false;
     }
 
     /**

@@ -72,7 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     "/api-docs/**",
                     "/webjars/**" 
                 ).permitAll()
-                .antMatchers("/users/login","/users/save", "/users/sendEmail").permitAll()
+                .antMatchers("/users/login","/users/save", "/users/sendEmail","/users/verifyEmailCode").permitAll()
                 // .permitAll()
                 //.antMatchers("/test/t1").hasAuthority("Admin")
                 .anyRequest().authenticated() // 允许所有请求
