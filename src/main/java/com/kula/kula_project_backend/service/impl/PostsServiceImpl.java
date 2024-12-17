@@ -475,7 +475,6 @@ public class PostsServiceImpl implements IPostsService {
     @Override
     public Page<Posts> getFeed(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-
         return postsRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 
