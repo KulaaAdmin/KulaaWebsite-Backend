@@ -40,4 +40,5 @@ public interface IRestaurantService {
     ResponseResult getTopRestaurantsBasedOnTagAndLocation(String tagName, String location, int topNum);
 //    ResponseResult getTopRestaurantsBasedOnTagAndLocation(String tagName, String regionName, String areaName, int topNum);
 	ResponseResult getTrendingRestaurantByTagsAndLocation(List<String> tags, String location);
+    ResponseResult getRestaurantNames();
 }
