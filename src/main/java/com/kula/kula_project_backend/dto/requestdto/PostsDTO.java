@@ -84,16 +84,6 @@ public class PostsDTO {
     private MultipartFile[] images;
 
     /**
-     * The negative review of the post.
-     */
-    private String negativeReview;
-
-    /**
-     * The positive review of the post.
-     */
-    private String positiveReview;
-
-    /**
      * The video URL associated with the post.
      */
     private String videoURL;
@@ -101,5 +91,5 @@ public class PostsDTO {
     /**
      * The rating of the post.
      */
-    private int rating;
+    private double rating;
 }
