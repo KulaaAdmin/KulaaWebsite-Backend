@@ -111,7 +111,7 @@ public class UsersServiceImpl implements IUsersService {
     public ResponseResult login(String emailOrPhoneNumber, String password) {
         try {
             // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
-            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
+            Users user = usersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
             
             Authentication authentication = authenticationManager.authenticate(
