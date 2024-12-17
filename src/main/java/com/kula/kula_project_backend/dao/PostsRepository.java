@@ -22,5 +22,6 @@ public interface PostsRepository extends MongoRepository<Posts, ObjectId> {
      */
     Optional<Posts> findById(ObjectId postId);
     // Find all posts by createdAt desc
+
     Page<Posts> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

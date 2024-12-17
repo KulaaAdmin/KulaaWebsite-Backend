@@ -166,14 +166,20 @@ public class PostsController {
         return postsService.getPostsAmountByUserId(id);
     }
 
+    /**
+     * Endpoints to get feed of posts (ordered by createdAt Desc)
+     * @param page
+     * @param pageSize
+     * @return
+     */
     @GetMapping("/feed/{page}")
-    public ResponseEntity<Page<Posts>> getFeed(
+    public ResponseResult getFeed(
             @PathVariable int page,
             @RequestParam(defaultValue = "5") int pageSize) {
-        if (page < 0) {
-            return ResponseEntity.badRequest().build();
+        if (page < 1) {
+            return new ResponseResult(404, "page number starts from 1");
         }
-        return ResponseEntity.ok(postsService.getFeed(page, pageSize));
+        return postsService.getFeed(page - 1, pageSize);
     }
 
 

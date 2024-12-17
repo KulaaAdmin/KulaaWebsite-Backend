@@ -40,5 +40,5 @@ public interface IPostsService {
 
     ResponseResult uploadImagesById(ObjectId id, MultipartFile[] files);
 
-    Page<Posts> getFeed(int page, int pageSize);
+    ResponseResult getFeed(int page, int pageSize);
 }

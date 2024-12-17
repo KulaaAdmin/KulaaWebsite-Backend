@@ -472,11 +472,26 @@ public class PostsServiceImpl implements IPostsService {
         return new ResponseResult(400, "fail");
     }
 
+    /**
+     * Get posts list for feed.
+     * @param page
+     * @param pageSize
+     * @return The paginated list of posts ordered by createdAt Desc.
+     */
     @Override
-    public Page<Posts> getFeed(int page, int pageSize) {
+    public ResponseResult getFeed(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        return postsRepository.findAllByOrderByCreatedAtDesc(pageable);
+        Page<Posts> postsPage = postsRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+        List<PostsResponseDTO> convertedList = postsPage.getContent().stream()
+                .map(postsResponseDTOConverter::convertToResponseDTO)
+                .collect(Collectors.toList());
+        if (!convertedList.isEmpty()) {
+            return new ResponseResult(200, "success", convertedList);
+        } else {
+            return new ResponseResult(404, "no more posts");
+        }
     }
 
     // Helper method for validate post
