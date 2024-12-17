@@ -473,8 +473,8 @@ public class PostsServiceImpl implements IPostsService {
 
     /**
      * Get posts list for feed.
-     * @param page
-     * @param pageSize
+     * @param page the page number
+     * @param pageSize the number of posts in each page
      * @return The paginated list of posts ordered by createdAt Desc.
      */
     @Override

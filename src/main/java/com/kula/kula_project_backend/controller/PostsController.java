@@ -156,9 +156,9 @@ public class PostsController {
 
     /**
      * Endpoints to get feed of posts (ordered by createdAt Desc)
-     * @param page
-     * @param pageSize
-     * @return
+     * @param page page number of the list
+     * @param pageSize the number of the posts contained in each page
+     * @return the requested page of the list
      */
     @GetMapping("/feed/{page}")
     public ResponseResult getFeed(
