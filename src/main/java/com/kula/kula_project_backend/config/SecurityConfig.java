@@ -1,5 +1,6 @@
 package com.kula.kula_project_backend.config;
 
+import com.kula.kula_project_backend.common.PermissionDefinition;
 import com.kula.kula_project_backend.security.JwtAuthenticationFilter;
 import com.kula.kula_project_backend.security.JwtAuthorizationFilter;
 import com.kula.kula_project_backend.security.JwtTokenProvider;
@@ -72,6 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     "/api-docs/**",
                     "/webjars/**" 
                 ).permitAll()
+                //.antMatchers("/restaurant/update").hasAnyAuthority(PermissionDefinition.CanModifyResturantInfo)
+                //如何实现permissionDefinition里的权限与role相关联
                 .antMatchers("/users/login","/users/save", "/users/sendEmail","/users/verifyEmailCode").permitAll()
                 // .permitAll()
                 //.antMatchers("/test/t1").hasAuthority("Admin")

@@ -13,7 +13,8 @@ import java.util.Date;
 
 /**
  * Users is an entity class that represents a user in the application.
- * It is annotated as a MongoDB document and is stored in the "users" collection.
+ * It is annotated as a MongoDB document and is stored in the "users"
+ * collection.
  */
 @Data
 @Document(collection = "users")
@@ -82,12 +83,6 @@ public class Users {
     private String lastName;
 
     /**
-     * A boolean indicating whether the user is an admin.
-     */
-    @Field("admin")
-    private boolean admin;
-
-    /**
      * The date and time when the user was created.
      */
     @Field("created_at")
@@ -111,17 +106,10 @@ public class Users {
     @Field("suspend")
     private boolean suspend;
 
-    /**
-     * A Enum field indicate the role of a user
-     * */
-    public enum UserType {
-        CUSTOMER,
-        INFLUENCER,
-        RESTAURANT_MANAGER,
-        KULAA_STUFF,
-        ADMIN,
-    }
-
-    @Field("role")
-    private UserType userType;
+    /* 
+     * each user can only belong to one role
+     * user permissions are determined by roleId
+     */
+    @Field("role_id")
+    private ObjectId roleId;
 }

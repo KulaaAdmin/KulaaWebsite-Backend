@@ -104,7 +104,7 @@ public class UsersController {
         return usersService.sendEmail(to, subject, text);
     }
 
-    @PostMapping("/verifyEmailCode")
+    @GetMapping("/verifyEmailCode")
     public ResponseResult verifyEmailCode(@RequestParam String email, @RequestParam String code) {
         return usersService.checkEmailCode(email, code);
     }

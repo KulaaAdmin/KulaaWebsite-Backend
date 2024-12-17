@@ -74,5 +74,5 @@ public class UsersResponseDTO {
     /**
      * A Enum field indicate the role of a user
      * */
-    private Users.UserType userType;
+    private String roleName;
 }
