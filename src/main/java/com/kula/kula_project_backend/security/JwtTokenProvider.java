@@ -46,9 +46,7 @@ public class JwtTokenProvider {
      *                       details.
      * @return A JWT string.
      */
-    public String generateToken(Authentication authentication) {
-        //System.out.println("Generating token for userType: " + userType); // 调试信息
-        //log.info("Generating token for userType: {}", userType);
+    public String generateToken(Authentication authentication, String roleId) {
         String username = authentication.getName();
         System.out.println(username);
 
@@ -63,7 +61,7 @@ public class JwtTokenProvider {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
-                //.claim("userType", userType)
+                .claim("roleId", roleId)
                 // Signature
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
@@ -75,12 +73,12 @@ public class JwtTokenProvider {
      * @param token The JWT string.
      * @return The userType string.
      */
-    public String getUserTypeFromJWT(String token) {
+    public String getRoleIdFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token.replace("Bearer ", ""))
                 .getBody();
-        return claims.get("userType", String.class);
+        return claims.get("roleId", String.class);
     }
 
     /**
@@ -112,5 +110,10 @@ public class JwtTokenProvider {
             // Log and handle exceptions
         }
         return false;
+    }
+
+
+    public String getSecret(){
+        return jwtSecret;
     }
 }

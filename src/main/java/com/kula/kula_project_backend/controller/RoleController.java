@@ -2,9 +2,16 @@ package com.kula.kula_project_backend.controller;
 
 import java.util.ArrayList;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.kula.kula_project_backend.common.ResponseResult;
 
+@RestController
+@RequestMapping("/role")
 public class RoleController {
+
     public ResponseResult create(String Role){
 		return new ResponseResult(0, Role);
         //return RoleRepo.Create(Role,new Role());	

@@ -120,8 +120,8 @@ public class UsersServiceImpl implements IUsersService {
             // 获取 UserDetails
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // TODO: change usertype
-            String token = jwtTokenProvider.generateToken(authentication);
+            String token = jwtTokenProvider.generateToken(authentication, 
+                user.getRoleId() != null ? user.getRoleId().toString() : null);
 
             Map<String, Object> authInfo = new HashMap<>();
             authInfo.put("userId", user.getId().toString());
@@ -171,11 +171,11 @@ public class UsersServiceImpl implements IUsersService {
         users.setLastName(usersDTO.getLastName());
         users.setUsername(usersDTO.getUsername());
         users.setPasswordHash(passwordEncoder.encode(usersDTO.getPassword()));
-        //users.setAdmin(usersDTO.isAdmin());
         users.setSuspend(false);
         users.setCreatedAt(new Date());
         users.setUpdatedAt(new Date());
-        //users.setUserType(usersDTO.getUserType());
+        users.setRoleId(null);
+
 
         UsersRepository.insert(users);
 

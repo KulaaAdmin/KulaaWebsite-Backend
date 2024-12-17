@@ -16,6 +16,9 @@ public class KulaProjectBackendApplication {
         
     }
     
+    /* 
+     * Initial a root admin
+     */
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
         // RolesRepo.Query("ROOT").getPermissions().put(PermissionDefinition.canAssigRole,true)

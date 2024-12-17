@@ -9,6 +9,7 @@ import com.kula.kula_project_backend.service.impl.UsersServiceImpl;
 import com.kula.kula_project_backend.util.EmailUtil;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,9 +58,9 @@ public class UsersController {
      * @return The result of the update operation.
      */
     @PostMapping("/update")
-    public ResponseResult update(@RequestBody @Validated UsersDTO usersDTO) {
-//        return usersService.update(usersDTO);
-        return null;
+    public ResponseResult update(@RequestBody  UsersDTO usersDTO) {
+        return usersService.update(usersDTO);
+        //return null;
     }
     /**
      * Endpoint to get a list of users by parameters.
@@ -104,7 +105,7 @@ public class UsersController {
         return usersService.sendEmail(to, subject, text);
     }
 
-    @GetMapping("/verifyEmailCode")
+    @PostMapping("/verifyEmailCode")
     public ResponseResult verifyEmailCode(@RequestParam String email, @RequestParam String code) {
         return usersService.checkEmailCode(email, code);
     }

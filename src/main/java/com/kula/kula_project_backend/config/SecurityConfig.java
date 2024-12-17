@@ -1,7 +1,8 @@
 package com.kula.kula_project_backend.config;
 
 import com.kula.kula_project_backend.common.PermissionDefinition;
-import com.kula.kula_project_backend.entity.Users.UserType;
+import com.kula.kula_project_backend.dao.RoleRepository;
+//import com.kula.kula_project_backend.entity.JwtAuthorizationFilter;
 import com.kula.kula_project_backend.security.JwtAuthenticationFilter;
 import com.kula.kula_project_backend.security.JwtAuthorizationFilter;
 import com.kula.kula_project_backend.security.JwtTokenProvider;
@@ -32,17 +33,24 @@ import org.springframework.http.HttpMethod;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomUserDetailsService userDetailsService;
+    @Autowired
     private final JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     /**
      * Constructor for SecurityConfig.
      * 
      * @param userDetailsService The service that provides user details.
      * @param tokenProvider      The provider that manages JSON Web Tokens.
+     * @param roleRepository
      */
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtTokenProvider tokenProvider) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtTokenProvider tokenProvider,
+            RoleRepository roleRepository) {
         this.userDetailsService = userDetailsService;
         this.tokenProvider = tokenProvider;
+        this.roleRepository = roleRepository;
     }
 
     /**
@@ -83,10 +91,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/followingGroups/getFollowingsByOwnerId/**",
                         "/followingGroups/getFollowers/**",
                         "/likes/getLikesByPostId/**",
-                        "/users/getBookmarks/")
-                .hasAnyAuthority(
-                        "CUSTOMER", "INFLUENCER", "RESTAURANT_MANAGER", "KULAA_STUFF", "ADMIN")// CUSTOMER and higher
-                                                                                               // roles
+                        "/users/getBookmarks/").authenticated()
+
                 // .antMatchers(HttpMethod.GET,
                 // "/api/v1/influencer/**",
                 // ""
@@ -98,13 +104,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // ).hasAuthority("RESTAURANT_MANAGER") // RESTAURANT_MANAGER and higher roles
                 .antMatchers(HttpMethod.GET,
                         "/dishes/all",
-                        "/users/getAll")
-                .hasAnyAuthority(
-                        "KULAA_STUFF", "ADMIN")// KULAA_STUFF and higher roles
+                        "/users/getAll").permitAll()
+
                 .antMatchers(HttpMethod.GET,
-                        "/files/getImageURIFromServer/**")
-                .hasAnyAuthority(
-                        "ADMIN")// only ADMIN
+                        "/files/getImageURIFromServer/**").authenticated()
 
                 // .antMatchers(
                 // HttpMethod.GET,
@@ -123,7 +126,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // most POST requests must access with token
 
-                .antMatchers(HttpMethod.POST,
+                .antMatchers(
                         "/files/upload",
                         "/files/uploadMultiple",
                         "/bookmarker/save/**",
@@ -147,11 +150,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/tags/getOrCreateTags",
                         "/users/update",
                         "/users/listByParams",
-                        "/users/assignProfile"
-
-                ).hasAnyAuthority(
-                        "CUSTOMER", "INFLUENCER", "RESTAURANT_MANAGER", "KULAA_STUFF", "ADMIN") // CUSTOMER and higher
-                                                                                                // roles
+                        "/users/assignProfile").hasAnyAuthority(PermissionDefinition.canAssignRole)
 
                 // .antMatchers(HttpMethod.POST,
                 // "",
@@ -165,25 +164,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/offers/save",
                         "/restaurants/save",
                         "/restaurants/uploadLogo/**",
-                        "/restaurants/uploadImages/**")
-                .hasAnyAuthority(
-                        "RESTAURANT_MANAGER", "KULAA_STUFF", "ADMIN") // RESTAURANT_MANAGER and higher roles
+                        "/restaurants/uploadImages/**").authenticated()
 
                 .antMatchers(HttpMethod.POST,
                         "/profiles/updateProfileLevels",
                         "/profiles/updateProfilePoints",
-                        "/profiles/gainProfilePoints")
-                .hasAnyAuthority(
-                        "KULAA_STUFF", "ADMIN") // KULAA_STUFF and higher roles
+                        "/profiles/gainProfilePoints").authenticated()
 
                 .antMatchers(HttpMethod.POST,
                         "/areas/save",
                         "/files/updateImageToServer",
                         "/diets/save",
                         "/diets/findOrCreateDiet",
-                        "/regions/save")
-                .hasAnyAuthority(
-                        "ADMIN") // only ADMIN
+                        "/regions/save").authenticated()
 
                 // .antMatchers(
                 // HttpMethod.POST,
@@ -198,10 +191,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(
                         "/comments/deleteComment/**",
-                        "/posts/deletePost/**")
-                .hasAnyAuthority(
-                        "CUSTOMER", "INFLUENCER", "RESTAURANT_MANAGER", "KULAA_STUFF", "ADMIN")// CUSTOMER and higher
-                                                                                               // roles
+                        "/posts/deletePost/**").authenticated()
+
                 // .antMatchers("").hasAuthority("INFLUENCER") // INFLUENCER and higher roles
                 .antMatchers(
                         "/dishes/update",
@@ -212,22 +203,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/offers/delete/**",
                         "/restaurants/update",
                         "/restaurants/deleteLogo/**",
-                        "/restaurants/deleteImages/")
-                .hasAnyAuthority(
-                        "RESTAURANT_MANAGER", "KULAA_STUFF", "ADMIN")// RESTAURANT_MANAGER and higher roles
+                        "/restaurants/deleteImages/").authenticated()
+
                 .antMatchers(
                         "/restaurants/delete/**",
-                        "/tags/deleteTag/**")
-                .hasAnyAuthority(
-                        "KULAA_STUFF", "ADMIN") // KULAA_STUFF and higher roles
+                        "/tags/deleteTag/**").authenticated()
+
                 .antMatchers(
                         "/areas/update",
                         "/areas/delete/**",
                         "/diets/deleteDiet/**",
                         "/regions/update",
-                        "/regions/delete/**")
-                .hasAnyAuthority(
-                        "ADMIN")// only ADMIN
+                        "/regions/delete/**").authenticated()
+
                 .antMatchers(HttpMethod.PUT, "/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/**").authenticated()
                 .antMatchers(
@@ -241,15 +229,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/**").permitAll()
-                .antMatchers("/users/login", "/users/save", "/users/sendEmail").permitAll()
+                .antMatchers("/users/login", "/users/save", "/users/sendEmail","/users/verifyEmailCode").permitAll()
 
                 // .permitAll()
                 // .antMatchers("/test/t1").hasAuthority("Admin")
                 .anyRequest().authenticated() // 允许所有请求
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                // .addFilterBefore(jwtAuthorizationFilter(),
-                // UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .httpBasic();
     }
 
@@ -267,10 +254,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // * Creates a JwtAuthorizationFilter bean.
     // * @return A JwtAuthorizationFilter instance.
     // */
-    // @Bean
-    // public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
-    // return new JwtAuthorizationFilter(authenticationManager(), tokenProvider);
-    // }
+    @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
+        return new JwtAuthorizationFilter(authenticationManager(), tokenProvider);
+    }
+
     /**
      * Creates an AuthenticationManager bean.
      * 
