@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import com.kula.kula_project_backend.entity.Users;
-import com.kula.kula_project_backend.entity.Users.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +46,9 @@ public class JwtTokenProvider {
      *                       details.
      * @return A JWT string.
      */
-    public String generateToken(Authentication authentication, String userType) {
-        System.out.println("Generating token for userType: " + userType); // 调试信息
-        log.info("Generating token for userType: {}", userType);
+    public String generateToken(Authentication authentication) {
+        //System.out.println("Generating token for userType: " + userType); // 调试信息
+        //log.info("Generating token for userType: {}", userType);
         String username = authentication.getName();
         System.out.println(username);
 
@@ -64,7 +63,7 @@ public class JwtTokenProvider {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
-                .claim("userType", userType)
+                //.claim("userType", userType)
                 // Signature
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
