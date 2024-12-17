@@ -1,27 +1,15 @@
 package com.kula.kula_project_backend.controller;
 
-import com.kula.kula_project_backend.common.Constant;
 import com.kula.kula_project_backend.common.ResponseResult;
 import com.kula.kula_project_backend.common.validator.SaveValidator;
 import com.kula.kula_project_backend.common.validator.UpdateValidator;
 import com.kula.kula_project_backend.dto.requestdto.PostsDTO;
-import com.kula.kula_project_backend.entity.Posts;
 import com.kula.kula_project_backend.query.PostsQuery;
 import com.kula.kula_project_backend.service.IPostsService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
 
 /**
  * PostsController is a REST controller that provides endpoints for managing posts.

@@ -6,7 +6,6 @@ import com.kula.kula_project_backend.common.converter.PostsResponseDTOConverter;
 import com.kula.kula_project_backend.dao.*;
 import com.kula.kula_project_backend.dto.requestdto.PostsDTO;
 import com.kula.kula_project_backend.dto.responsedto.PostsResponseDTO;
-import com.kula.kula_project_backend.dto.responsedto.RestaurantsResponseDTO;
 import com.kula.kula_project_backend.entity.*;
 import com.kula.kula_project_backend.query.PostsQuery;
 import com.kula.kula_project_backend.service.IAzureBlobService;
