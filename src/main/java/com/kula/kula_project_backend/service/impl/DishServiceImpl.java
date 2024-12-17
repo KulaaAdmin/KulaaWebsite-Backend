@@ -7,10 +7,7 @@ import java.time.temporal.ChronoUnit;
 
 //import static com.kula.kula_project_backend.common.converter.DishesResponseDTOConverter.convertToResponseDTO;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.kula.kula_project_backend.entity.*;
@@ -602,7 +599,32 @@ public class DishServiceImpl implements IDishService {
 		return new ResponseResult(404, "No dish satisfies requirements for trending dish");
 	}
 
-    /**
+	/**
+	 * Get names of all dishes.
+	 *
+	 * @return List of restaurant names with ID.
+	 */
+
+	@Override
+	public ResponseResult getDishNames() {
+		List<Dishes> dishNames = dishRepository.dishIdAndNames();
+		List<Map<Object,String>> resultList = dishNames.stream()
+				.map(r -> {
+					Map<Object,String> map = new LinkedHashMap<>();
+					map.put("id", r.getId().toString());
+					map.put("name", r.getDishName());
+					return map;
+				})
+				.collect(Collectors.toList());
+
+
+		if (!dishNames.isEmpty()) {
+			return new ResponseResult(200, "success", resultList);
+		}
+		return new ResponseResult(400, "fail");
+	}
+
+	/**
      * Upload (more) images for dish by its ID.
      *
      * @param id The ID of the dish.
