@@ -5,12 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 //import static com.kula.kula_project_backend.common.converter.DishesResponseDTOConverter.convertToResponseDTO;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
@@ -538,7 +533,32 @@ public class RestaurantServiceImpl implements IRestaurantService {
 		return new ResponseResult(404, "No trending restaurants found");
 	}
 
-    /**
+	/**
+	 * Get names of all restaurants.
+	 *
+	 * @return List of restaurant names with ID.
+	 */
+
+	@Override
+	public ResponseResult getRestaurantNames() {
+		List<Restaurant> restaurantNames = restaurantRepository.restaurantIdAndNames();
+		List<Map<Object,String>> resultList = restaurantNames.stream()
+				.map(r -> {
+					Map<Object,String> map = new LinkedHashMap<>();
+					map.put("id", r.getId().toString());
+					map.put("name", r.getName());
+					return map;
+				})
+				.collect(Collectors.toList());
+
+
+		if (!restaurantNames.isEmpty()) {
+			return new ResponseResult(200, "success", resultList);
+		}
+		return new ResponseResult(400, "fail");
+	}
+
+	/**
      * Upload Logo for restaurant by its ID.
      *
      * @param id The ID of the restaurant.

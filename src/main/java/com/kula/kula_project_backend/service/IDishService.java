@@ -53,4 +53,6 @@ public interface IDishService {
     ResponseResult getTopDishesBasedOnTagAndLocation(String tagName,  String location, int topNum);
 
 	ResponseResult getTrendingDishByTagsAndLocation(List<String> tags, String location);
+
+    ResponseResult getDishNames();
 }

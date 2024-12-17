@@ -270,5 +270,14 @@ public class DishesController {
         location, @RequestParam String tagName){
             return dishService.searchTrendingDishes(keyword, location, tagName);
         }
+
+        /**
+         * Endpoint to get names of all dishes
+         * @return The result of the get operation
+         * */
+        @GetMapping("/names")
+        public ResponseResult getDishNames(){
+            return dishService.getDishNames();
+        }
     }
 
