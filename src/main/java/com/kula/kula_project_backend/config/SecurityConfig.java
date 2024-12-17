@@ -59,6 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .and()
 //                .addFilter(jwtAuthenticationFilter())
 //                .addFilter(jwtAuthorizationFilter());
+                .cors()  // Use WebMvcConfig CORS
+                .and()
                 .csrf().disable() // 禁用CSRF保护
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -75,7 +77,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/login","/users/save", "/users/sendEmail","/users/verifyEmailCode1").permitAll()
                 // .permitAll()
                 //.antMatchers("/test/t1").hasAuthority("Admin")
-                .anyRequest().authenticated() // 允许所有请求
+//                .anyRequest().authenticated() // All other requests need JWT
+                .anyRequest().permitAll()  // Test integration
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 //.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
