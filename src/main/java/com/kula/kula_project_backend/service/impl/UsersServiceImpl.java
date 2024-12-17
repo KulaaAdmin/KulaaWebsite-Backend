@@ -110,6 +110,10 @@ public class UsersServiceImpl implements IUsersService {
     @Override
     public ResponseResult login(String emailOrPhoneNumber, String password) {
         try {
+            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
+            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
+            
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password)
             );
@@ -118,12 +122,9 @@ public class UsersServiceImpl implements IUsersService {
             // 获取 UserDetails
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
-            Users user = usersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone number: " + emailOrPhoneNumber));
 
             String token = jwtTokenProvider.generateToken(authentication);
-
+            
             Map<String, Object> authInfo = new HashMap<>();
             authInfo.put("userId", user.getId().toString());
             authInfo.put("token", token);
@@ -132,7 +133,7 @@ public class UsersServiceImpl implements IUsersService {
 
         } catch (AuthenticationException e) {
             log.error("Login failed for: {}. Error: {}", emailOrPhoneNumber, e.getMessage());
-            return new ResponseResult(401, "Invalid email/phone number or password");
+            return new ResponseResult(401, "Invalid email or password");
         }
     }
 
@@ -155,21 +156,7 @@ public class UsersServiceImpl implements IUsersService {
                 return new ResponseResult(400, "Email already exists.");
             }
             users.setEmail(email);
-            users.setPhoneNumber(null);
-
-            // Check if the front end request has a valid verification code attached inside the request body.
-            if (usersDTO.getVerificationCode() != null) {
-                boolean ifEmailCodeValid = this.checkEmailCode(email, usersDTO.getVerificationCode());
-                if (!ifEmailCodeValid) {
-                    return new ResponseResult(400, "Invalid verification code");
-                } else {
-                    // If the verification code is valid, the code will be removed from the Redis database.
-                    RBucket<String> bucket = redisson.getBucket(email);
-                    bucket.delete();
-                }
-            } else {
-                return new ResponseResult(400, "Verification code is required.");
-            }
+            // users.setPhoneNumber(null);
 
         } else if ("phone".equals(usersDTO.getRegistrationMethod())) {
             String phoneNumber = usersDTO.getPhoneNumber();
@@ -182,14 +169,16 @@ public class UsersServiceImpl implements IUsersService {
             return new ResponseResult(400, "Invalid registration method.");
         }
 
+        users.setPhoneNumber(usersDTO.getPhoneNumber());
         users.setFirstName(usersDTO.getFirstName());
         users.setLastName(usersDTO.getLastName());
         users.setUsername(usersDTO.getUsername());
         users.setPasswordHash(passwordEncoder.encode(usersDTO.getPassword()));
-        users.setAdmin(!usersDTO.isAdmin());
+        users.setAdmin(usersDTO.isAdmin());
         users.setSuspend(false);
         users.setCreatedAt(new Date());
         users.setUpdatedAt(new Date());
+        users.setUserType(usersDTO.getUserType());
 
         usersRepository.insert(users);
 
@@ -282,6 +271,9 @@ public class UsersServiceImpl implements IUsersService {
             }
             if (usersDTO.getPasswordHash() != null) {
                 user.setPasswordHash(usersDTO.getPasswordHash());
+            }
+            if (usersDTO.getUserType() != null){
+                user.setUserType(usersDTO.getUserType());
             }
             user.setUpdatedAt(new Date());
 
@@ -431,16 +423,24 @@ public class UsersServiceImpl implements IUsersService {
      * @return boolean indicating whether the verification code is valid.
      */
     @Override
-    public boolean checkEmailCode(String email, String code) {
-        RBucket<String> bucket = redisson.getBucket(email);
-        String codeInRedis = bucket.get();
-        if (codeInRedis == null) {
-            return false;
+    public ResponseResult checkEmailCode(String email, String code) {
+        System.out.println("e");
+        if(email!=null && code!=null){
+            RBucket<String> bucket = redisson.getBucket(email);
+            String codeInRedis = bucket.get();
+            if (codeInRedis == null) {
+                return new ResponseResult(400, "Verification code expired or does not exist.");
+            }
+            if (codeInRedis.equals(code)) {
+                bucket.delete();
+                return new ResponseResult(200, "Verification Success.");
+            }
+            System.out.println("b");
+            return new ResponseResult(400,"Incorrect verification code.");
+        }else{
+            System.out.println("a");
+            return new ResponseResult(400, "Verification code must not be null.");
         }
-        if (codeInRedis.equals(code)) {
-            return true;
-        }
-        return false;
     }
 
     /**

@@ -34,8 +34,11 @@ public class Users {
     /**
      * The id of the bookmarks associated with the user.
      */
+
+
     @Field("bookmarks_id")
     private ObjectId bookMarksId;
+
 
     /**
      * The id of the following groups associated with the user.
@@ -110,4 +113,18 @@ public class Users {
      */
     @Field("suspend")
     private boolean suspend;
+
+    /**
+     * A Enum field indicate the role of a user
+     * */
+    public enum UserType {
+        CUSTOMER,
+        INFLUENCER,
+        RESTAURANT_MANAGER,
+        KULAA_STUFF,
+        ADMIN,
+    }
+
+    @Field("role")
+    private UserType userType;
 }

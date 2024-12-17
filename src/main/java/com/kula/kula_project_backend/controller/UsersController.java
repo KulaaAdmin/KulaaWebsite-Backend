@@ -108,6 +108,12 @@ public class UsersController {
         }
         return usersService.sendEmail(to, subject, text);
     }
+    //@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/verifyEmailCode1")
+    public ResponseResult verifyEmailCode(@RequestParam("email") String email, @RequestParam("code") String code) {
+        System.out.println('T');
+        return usersService.checkEmailCode(email, code);
+    }
     /**
      * Endpoint to get the average rating of a user.
      * @param userId The id of the user.
