@@ -534,8 +534,6 @@ public class PostsServiceImpl implements IPostsService {
         }
         /*save images*/
         if (postsDTO.getImages() != null){posts = uploadImages(postsDTO.getImages(),posts);}
-        posts.setNegativeReview(textReviewService.policy.sanitize(postsDTO.getNegativeReview()));
-        posts.setPositiveReview(textReviewService.policy.sanitize(postsDTO.getPositiveReview()));
         posts.setRating(postsDTO.getRating());
         /* Transfer tagName to tagId*/
         ArrayList<ObjectId> tagIds = new ArrayList<>();
