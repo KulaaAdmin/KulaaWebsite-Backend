@@ -127,64 +127,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // most POST requests must access with token
 
                 .antMatchers(
-                        "/files/upload",
-                        "/files/uploadMultiple",
-                        "/bookmarker/save/**",
-                        "/bookmarker/addPost",
-                        "/bookmarker/deletePost",
-                        "/comments/save",
-                        "/followingGroups/save",
-                        "/followingGroups/moreFollowings",
-                        "/followingGroups/deleteFollowings",
-                        "/likes/save",
-                        "/posts/save",
-                        "/posts/update",
-                        "/profiles/save",
-                        "/profiles/updateBio",
-                        "/profiles/updateProfileImage",
-                        "/profiles/updatePrivateProfile",
-                        "/sharedPostLists/saveSharedPostLists",
-                        "/tags/save",
-                        "/tags/getNamesByIds",
-                        "/tags/findOrCreateTag",
-                        "/tags/getOrCreateTags",
-                        "/users/update",
-                        "/users/listByParams",
-                        "/users/assignProfile").hasAnyAuthority(PermissionDefinition.canAssignRole)
-
-                // .antMatchers(HttpMethod.POST,
-                // "",
-                // ""
-                // ).hasAuthority("INFLUENCER") // INFLUENCER and higher roles
-
-                .antMatchers(HttpMethod.POST,
-                        "/dishes/save",
-                        "/dishes/uploadImages/**",
-                        "/offers/uploadImage/**",
-                        "/offers/save",
-                        "/restaurants/save",
-                        "/restaurants/uploadLogo/**",
-                        "/restaurants/uploadImages/**").authenticated()
-
-                .antMatchers(HttpMethod.POST,
-                        "/profiles/updateProfileLevels",
-                        "/profiles/updateProfilePoints",
-                        "/profiles/gainProfilePoints").authenticated()
-
-                .antMatchers(HttpMethod.POST,
-                        "/areas/save",
-                        "/files/updateImageToServer",
-                        "/diets/save",
-                        "/diets/findOrCreateDiet",
-                        "/regions/save").authenticated()
-
-                // .antMatchers(
-                // HttpMethod.POST,
-                // "/users/login",
-                // "/users/save",
-                // "/users/sendEmail",
-                // "/users/sendSMSVerificationCode",
-                // "/users/verifySMSCode")
+                    "/swagger-ui/**", 
+                    "/swagger-ui.html",
+                    "/swagger-ui",
+                    "swagger-ui/index.html",
+                    "/api-docs/**",
+                    "/webjars/**" 
+                ).permitAll()
+                .antMatchers("/users/login","/users/save", "/users/sendEmail","/users/verifyEmailCode1").permitAll()
                 // .permitAll()
 
                 // all PUT and DELETE need token

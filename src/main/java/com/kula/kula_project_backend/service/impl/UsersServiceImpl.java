@@ -431,6 +431,7 @@ public class UsersServiceImpl implements IUsersService {
      */
     @Override
     public ResponseResult checkEmailCode(String email, String code) {
+        System.out.println("e");
         if(email!=null && code!=null){
             RBucket<String> bucket = redisson.getBucket(email);
             String codeInRedis = bucket.get();
@@ -441,8 +442,10 @@ public class UsersServiceImpl implements IUsersService {
                 bucket.delete();
                 return new ResponseResult(200, "Verification Success.");
             }
+            System.out.println("b");
             return new ResponseResult(400,"Incorrect verification code.");
         }else{
+            System.out.println("a");
             return new ResponseResult(400, "Verification code must not be null.");
         }
     }
