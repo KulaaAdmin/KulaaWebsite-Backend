@@ -215,4 +215,13 @@ public class RestaurantController {
     public ResponseResult getTopRestaurantsBasedOnTagAndLocation(@RequestParam String tagName,  @RequestParam String location, @RequestParam(defaultValue ="6") int topNum){
         return restaurantService.getTopRestaurantsBasedOnTagAndLocation(tagName, location, topNum);
     }
+
+    /**
+     * Endpoint to get names of all restaurants
+     * @return The result of the get operation
+     * */
+    @GetMapping("/names")
+    public ResponseResult getRestaurantNames(){
+        return restaurantService.getRestaurantNames();
+    }
 }

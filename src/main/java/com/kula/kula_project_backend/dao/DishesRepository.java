@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.kula.kula_project_backend.entity.Offers;
+import com.kula.kula_project_backend.entity.Restaurant;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -102,4 +103,10 @@ public interface DishesRepository extends MongoRepository<Dishes, ObjectId> {
 
 	List<Dishes> findByRestaurantIdIn(List<ObjectId> restaurantId);
 	List<Dishes> findByTagsContainingAndRestaurantIdIn(ObjectId tagId, List<ObjectId> restaurantId);
+
+	/**
+	 * Retrieve the name of All dishes (with _id)
+	 * */
+	@Query(value = "{}", fields = "{ 'dish_name': 1 }")
+	List<Dishes> dishIdAndNames();
 }

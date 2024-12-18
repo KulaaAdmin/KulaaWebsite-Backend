@@ -2,6 +2,7 @@ package com.kula.kula_project_backend.dto.responsedto;
 
 import com.kula.kula_project_backend.common.validator.SaveValidator;
 import com.kula.kula_project_backend.common.validator.UpdateValidator;
+import com.kula.kula_project_backend.entity.Users;
 import lombok.Data;
 import org.bson.types.ObjectId;
 
@@ -69,4 +70,9 @@ public class UsersResponseDTO {
      * A boolean indicating whether the user is suspended.
      */
     private boolean suspended;
+
+    /**
+     * A Enum field indicate the role of a user
+     * */
+    private String roleName;
 }

@@ -27,7 +27,7 @@ public interface IUsersService{
 
     boolean saveEmailToRedis(String email, String code);
 
-    boolean checkEmailCode(String email, String code);
+    ResponseResult checkEmailCode(String email, String code);
 
 
     ResponseResult getAverageRating(ObjectId userId);

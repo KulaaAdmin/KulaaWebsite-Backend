@@ -9,11 +9,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Users is an entity class that represents a user in the application.
- * It is annotated as a MongoDB document and is stored in the "users" collection.
+ * It is annotated as a MongoDB document and is stored in the "users"
+ * collection.
  */
 @Data
 @Document(collection = "users")
@@ -82,12 +88,6 @@ public class Users {
     private String lastName;
 
     /**
-     * A boolean indicating whether the user is an admin.
-     */
-    @Field("admin")
-    private boolean admin;
-
-    /**
      * The date and time when the user was created.
      */
     @Field("created_at")
@@ -110,4 +110,11 @@ public class Users {
      */
     @Field("suspend")
     private boolean suspend;
+
+    /* 
+     * each user can only belong to one role
+     * user permissions are determined by roleId
+     */
+    @Field("role_id")
+    private ObjectId roleId;
 }

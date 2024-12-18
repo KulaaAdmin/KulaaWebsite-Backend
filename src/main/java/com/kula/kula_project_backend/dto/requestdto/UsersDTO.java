@@ -2,6 +2,7 @@ package com.kula.kula_project_backend.dto.requestdto;
 
 import com.kula.kula_project_backend.common.validator.SaveValidator;
 import com.kula.kula_project_backend.common.validator.UpdateValidator;
+import com.kula.kula_project_backend.entity.Users;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -82,6 +83,7 @@ public class UsersDTO {
     private String lastName;
 
     /**
+     * TODO: Delete after authentication feature implemented.
      * A boolean indicating whether the user is an admin.
      * It is required when saving or updating a user.
      */
@@ -92,4 +94,9 @@ public class UsersDTO {
      * The verification code of the user.
      */
     private String verificationCode;
+
+    /**
+     * A Enum field indicate the role of a user
+     * */
+    private String roleName;
 }

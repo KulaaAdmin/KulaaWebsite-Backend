@@ -68,5 +68,10 @@ public interface RestaurantRepository extends MongoRepository<Restaurant, Object
     })
     List<Restaurant> filteredRestaurantsByLocation(ObjectId locationId);
 
+    /**
+     * Retrieve the name of All restaurants (with _id)
+     * */
+    @Query(value = "{}", fields = "{ 'name': 1 }")
+    List<Restaurant> restaurantIdAndNames();
 
 }
