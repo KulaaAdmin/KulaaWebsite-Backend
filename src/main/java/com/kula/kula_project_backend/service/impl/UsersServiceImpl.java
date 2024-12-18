@@ -39,11 +39,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.kula.kula_project_backend.common.converter.UsersResponseDTOConverter.convertToResponseDTO;
+
 /**
  * Service implementation for Users operations.
  * This service is used to save, delete and get Users.
@@ -98,28 +97,31 @@ public class UsersServiceImpl implements IUsersService {
     private int redisDatabase;
     @Value("${spring.redis.password}")
     private String redisPassword;
+
     /**
      * Authenticates a user and generates a JWT token for them.
+     * 
      * @param emailOrPhoneNumber The email or phone number of the user.
-     * @param password The password of the user.
+     * @param password           The password of the user.
      * @return ResponseResult object containing status, message and the JWT token.
      */
     @Override
     public ResponseResult login(String emailOrPhoneNumber, String password) {
         try {
+            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
+            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
+                    .orElseThrow(
+                            () -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
+
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password)
-            );
+                    new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 获取 UserDetails
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
-            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone number: " + emailOrPhoneNumber));
-
-            String token = jwtTokenProvider.generateToken(authentication);
+            String token = jwtTokenProvider.generateToken(authentication, 
+                user.getRoleId() != null ? user.getRoleId().toString() : null);
 
             Map<String, Object> authInfo = new HashMap<>();
             authInfo.put("userId", user.getId().toString());
@@ -129,14 +131,13 @@ public class UsersServiceImpl implements IUsersService {
 
         } catch (AuthenticationException e) {
             log.error("Login failed for: {}. Error: {}", emailOrPhoneNumber, e.getMessage());
-            return new ResponseResult(401, "Invalid email/phone number or password");
+            return new ResponseResult(401, "Invalid email or password");
         }
     }
 
-
-
     /**
      * Saves a new user or updates an existing one.
+     * 
      * @param usersDTO The DTO containing the user details.
      * @return ResponseResult object containing status and message of the operation.
      */
@@ -152,21 +153,7 @@ public class UsersServiceImpl implements IUsersService {
                 return new ResponseResult(400, "Email already exists.");
             }
             users.setEmail(email);
-            users.setPhoneNumber(null);
-
-            // Check if the front end request has a valid verification code attached inside the request body.
-            if (usersDTO.getVerificationCode() != null) {
-                boolean ifEmailCodeValid = this.checkEmailCode(email, usersDTO.getVerificationCode());
-                if (!ifEmailCodeValid) {
-                    return new ResponseResult(400, "Invalid verification code");
-                } else {
-                    // If the verification code is valid, the code will be removed from the Redis database.
-                    RBucket<String> bucket = redisson.getBucket(email);
-                    bucket.delete();
-                }
-            } else {
-                return new ResponseResult(400, "Verification code is required.");
-            }
+            // users.setPhoneNumber(null);
 
         } else if ("phone".equals(usersDTO.getRegistrationMethod())) {
             String phoneNumber = usersDTO.getPhoneNumber();
@@ -179,21 +166,22 @@ public class UsersServiceImpl implements IUsersService {
             return new ResponseResult(400, "Invalid registration method.");
         }
 
+        users.setPhoneNumber(usersDTO.getPhoneNumber());
         users.setFirstName(usersDTO.getFirstName());
         users.setLastName(usersDTO.getLastName());
         users.setUsername(usersDTO.getUsername());
         users.setPasswordHash(passwordEncoder.encode(usersDTO.getPassword()));
-        users.setAdmin(!usersDTO.isAdmin());
         users.setSuspend(false);
         users.setCreatedAt(new Date());
         users.setUpdatedAt(new Date());
+        users.setRoleId(null);
+
 
         UsersRepository.insert(users);
 
-
-
-        if(users.getId() != null) {
-            // After successfully set up a new user account, the suer service will also create a new profile for the user.
+        if (users.getId() != null) {
+            // After successfully set up a new user account, the suer service will also
+            // create a new profile for the user.
             Profiles profiles = new Profiles();
             profiles.setUserId(users.getId());
             profiles.setProfileImageURL("doge.jpeg");
@@ -228,15 +216,15 @@ public class UsersServiceImpl implements IUsersService {
                 UsersRepository.save(users);
             }
 
-
             return new ResponseResult(200, "success", users.getId().toString());
         }
         return new ResponseResult(400, "fail");
 
-
     }
+
     /**
      * Retrieves all users.
+     * 
      * @return ResponseResult object containing status, message and all users.
      */
     @Override
@@ -251,8 +239,10 @@ public class UsersServiceImpl implements IUsersService {
         return new ResponseResult(200, "success", responseList);
 
     }
+
     /**
      * Updates a user.
+     * 
      * @param usersDTO The DTO containing the updated user details.
      * @return ResponseResult object containing status and message of the operation.
      */
@@ -280,6 +270,9 @@ public class UsersServiceImpl implements IUsersService {
             if (usersDTO.getPasswordHash() != null) {
                 user.setPasswordHash(usersDTO.getPasswordHash());
             }
+            // if (usersDTO.getUserType() != null){
+            //     user.setUserType(usersDTO.getUserType());
+            // }
             user.setUpdatedAt(new Date());
 
             UsersRepository.save(user);
@@ -287,8 +280,10 @@ public class UsersServiceImpl implements IUsersService {
         }
         return new ResponseResult(400, "fail");
     }
+
     /**
      * Retrieves users by various parameters.
+     * 
      * @param usersQuery The query containing the parameters.
      * @return ResponseResult object containing status, message and the users.
      */
@@ -318,11 +313,10 @@ public class UsersServiceImpl implements IUsersService {
         }
         Query query = new Query(criteria);
         List<Users> users = mongoTemplate.find(query, Users.class);
-        List< UsersResponseDTO> responseList = new ArrayList<UsersResponseDTO>();
+        List<UsersResponseDTO> responseList = new ArrayList<UsersResponseDTO>();
         for (Users user : users) {
             responseList.add(convertToResponseDTO(user));
         }
-
 
         if (users.size() > 0) {
             return new ResponseResult(200, "success", responseList);
@@ -331,8 +325,10 @@ public class UsersServiceImpl implements IUsersService {
         }
 
     }
+
     /**
      * Retrieves a user by their ID.
+     * 
      * @param id The ID of the user.
      * @return ResponseResult object containing status, message and the user.
      */
@@ -344,9 +340,11 @@ public class UsersServiceImpl implements IUsersService {
         }
         return new ResponseResult(400, "fail");
     }
+
     /**
      * Assigns a profile to a user.
-     * @param userId The ID of the user.
+     * 
+     * @param userId    The ID of the user.
      * @param profileId The ID of the profile.
      * @return ResponseResult object containing status and message of the operation.
      */
@@ -364,9 +362,10 @@ public class UsersServiceImpl implements IUsersService {
 
     /**
      * Sends an email.
-     * @param to The recipient's email address.
+     * 
+     * @param to      The recipient's email address.
      * @param subject The subject of the email.
-     * @param text The body of the email.
+     * @param text    The body of the email.
      * @return ResponseResult object containing status and message of the operation.
      */
     @Override
@@ -397,17 +396,18 @@ public class UsersServiceImpl implements IUsersService {
 
         }
 
-
     }
+
     /**
      * Saves an email to Redis.
+     * 
      * @param email The email to be saved.
-     * @param code The verification code to be saved.
+     * @param code  The verification code to be saved.
      * @return boolean indicating whether the operation was successful.
      */
     @Override
     public boolean saveEmailToRedis(String email, String code) {
-        try{
+        try {
             if (redisson.getBucket(email).isExists()) {
                 return false;
             }
@@ -421,29 +421,38 @@ public class UsersServiceImpl implements IUsersService {
         }
 
     }
+
     /**
      * Checks if the verification code for an email is valid.
+     * 
      * @param email The email to be checked.
-     * @param code The verification code to be checked.
+     * @param code  The verification code to be checked.
      * @return boolean indicating whether the verification code is valid.
      */
     @Override
-    public boolean checkEmailCode(String email, String code) {
-        RBucket<String> bucket = redisson.getBucket(email);
-        String codeInRedis = bucket.get();
-        if (codeInRedis == null) {
-            return false;
+    public ResponseResult checkEmailCode(String email, String code) {
+        if(email!=null && code!=null){
+            RBucket<String> bucket = redisson.getBucket(email);
+            String codeInRedis = bucket.get();
+            if (codeInRedis == null) {
+                return new ResponseResult(400, "Verification code expired or does not exist.");
+            }
+            if (codeInRedis.equals(code)) {
+                bucket.delete();
+                return new ResponseResult(200, "Verification Success.");
+            }
+            return new ResponseResult(400,"Incorrect verification code.");
+        }else{
+            return new ResponseResult(400, "Verification code must not be null.");
         }
-        if (codeInRedis.equals(code)) {
-            return true;
-        }
-        return false;
     }
 
     /**
      * Retrieves the average rating of a user.
+     * 
      * @param userId The ID of the user.
-     * @return ResponseResult object containing status, message and the average rating.
+     * @return ResponseResult object containing status, message and the average
+     *         rating.
      */
     @Override
     public ResponseResult getAverageRating(ObjectId userId) {
@@ -468,6 +477,7 @@ public class UsersServiceImpl implements IUsersService {
 
     /**
      * Sends an SMS.
+     * 
      * @param phoneNumber The phone number to send the SMS to.
      * @return ResponseResult object containing status and message of the operation.
      */
@@ -477,10 +487,12 @@ public class UsersServiceImpl implements IUsersService {
         twilioService.sendVerification(phoneNumber);
         return new ResponseResult(200, "Verification code sent successfully");
     }
+
     /**
      * Verifies a code sent via SMS.
+     * 
      * @param phoneNumber The phone number the SMS was sent to.
-     * @param code The code to verify.
+     * @param code        The code to verify.
      * @return ResponseResult object containing status and message of the operation.
      */
     @Override
@@ -492,8 +504,10 @@ public class UsersServiceImpl implements IUsersService {
             return new ResponseResult(400, "Invalid verification code");
         }
     }
+
     /**
      * Retrieves a user's bookmarks.
+     * 
      * @param userId The ID of the user.
      * @return ResponseResult object containing status, message and the bookmarks.
      **/
