@@ -537,7 +537,6 @@ public class UsersServiceImpl implements IUsersService {
      * Only couples of field will be output: _id, name, TODO:avatar
      * @return The result of the get operation.
      */
-    @Override
     public ResponseResult getUsersBrief(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
         List<Users> users = usersRepository.findAllByOrderByCreatedAtDesc(pageable).getContent();
