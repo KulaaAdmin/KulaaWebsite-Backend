@@ -85,9 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/followingGroups/getFollowingsByOwnerId/**",
                         "/followingGroups/getFollowers/**",
                         "/likes/getLikesByPostId/**",
-                        "/users/getBookmarks/",
-                        "/dishes/searchByKeyword",
-                        "/restaurants/searchTop",
+                        "/users/getBookmarks/**",
                         "/dishes/names",
                         "/restaurants/names"
                 // .hasAnyAuthority(
@@ -105,7 +103,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // ).hasAuthority("RESTAURANT_MANAGER") // RESTAURANT_MANAGER and higher roles
                 .antMatchers(HttpMethod.GET,
                         "/dishes/all",
-                        "/users/getAll"
+                        "/users/getAll",
+                        "/restaurants/all"
                         // ).hasAnyAuthority(
                         // "KULAA_STUFF", "ADMIN")// KULAA_STUFF and higher roles
                         ).authenticated() 
