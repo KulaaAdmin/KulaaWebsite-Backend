@@ -115,20 +115,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET,
                         "/files/getImageURIFromServer/**").authenticated()
 
-                // .antMatchers(
-                // HttpMethod.GET,
-                // "/files/getImageURIFromServer/**",
-                // "/bookmarker/getBookMarksByUserId/**",
-                // "/bookmarker/getBookMarksById/**",
-                // "/comments/getAllPostsComments/**",
-                // "/dishes/all",
-                // "/followingGroups/**",
-                // "/followingGroups/getFollowingsByOwnerId/**",
-                // "/followingGroups/getFollowers/**",
-                // "/likes/getLikesByPostId/**",
-                // "/users/getAll",
-                // "/users/getBookmarks/**")
-                // .authenticated()
 
                 // most POST requests must access with token
 
@@ -158,15 +144,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/users/listByParams",
                         "/users/assignProfile"
 
-                // ).hasAnyAuthority(
-                //         "CUSTOMER", "INFLUENCER", "RESTAURANT_MANAGER", "KULAA_STUFF", "ADMIN") // CUSTOMER and higher
-                //
                 ).authenticated()                                                                      // roles
 
-                // .antMatchers(HttpMethod.POST,
-                // "",
-                // ""
-                // ).hasAuthority("INFLUENCER") // INFLUENCER and higher roles
 
                 .antMatchers(HttpMethod.POST,
                         "/dishes/save",
@@ -189,15 +168,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/diets/findOrCreateDiet",
                         "/regions/save").authenticated()
 
-                // .antMatchers(
-                // HttpMethod.POST,
-                // "/users/login",
-                // "/users/save",
-                // "/users/sendEmail",
-                // "/users/sendSMSVerificationCode",
-                // "/users/verifySMSCode")
-                // .permitAll()
-
                 // all PUT and DELETE need token
 
                 .antMatchers(
@@ -219,9 +189,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/restaurants/delete/**",
                         "/tags/deleteTag/**"
-                //         )
-                // .hasAnyAuthority(
-                //         "KULAA_STUFF", "ADMIN") // KULAA_STUFF and higher roles
                 ).authenticated()
 
 
@@ -231,9 +198,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/diets/deleteDiet/**",
                         "/regions/update",
                         "/regions/delete/**"
-                //         )
-                // .hasAnyAuthority(
-                //         "ADMIN")// only ADMIN
                 ).authenticated()
 
                 .antMatchers(HttpMethod.PUT, "/**").authenticated()
@@ -245,7 +209,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "swagger-ui/index.html",
                         "/api-docs/**",
                         "/webjars/**")
-                .permitAll()
+                .authenticated()
 
                 .antMatchers(HttpMethod.GET, "/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/**").permitAll()
