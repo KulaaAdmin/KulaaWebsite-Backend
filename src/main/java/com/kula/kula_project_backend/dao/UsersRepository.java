@@ -1,7 +1,10 @@
 package com.kula.kula_project_backend.dao;
 
+import com.kula.kula_project_backend.entity.Posts;
 import com.kula.kula_project_backend.entity.Users;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -49,6 +52,10 @@ public interface UsersRepository extends MongoRepository<Users, ObjectId> {
      */
     @Query("{ $or: [ { 'email' : ?0 }, { 'phoneNumber' : ?0 } ] }")
     Optional<Users> findByEmailOrPhoneNumber(String emailOrPhoneNumber);
+
+    // Find all users by createdAt desc
+    @Query(value = "{}", fields = "{ '_id': 1, 'username': 1 }")
+    Page<Users> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
 
 

@@ -10,6 +10,7 @@ import com.kula.kula_project_backend.util.EmailUtil;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -150,4 +151,19 @@ public class UsersController {
 
     }
 
+    /**
+     * Endpoint to get all users pageable, with random order for suggestion.
+     * Only couples of field will be output: _id, name, TODO:avatar
+     * @return The result of the get operation.
+     */
+    @GetMapping("/getUsersBrief/{page}")
+    public ResponseResult getRandomUsers(
+            @PathVariable int page, /* Page number shall start with 1 */
+            @RequestParam(defaultValue = "5") int pageSize) {
+
+        if (page < 1) {
+            return new ResponseResult(404,"Page number shall start with 1");
+        }
+        return usersService.getUsersBrief(page-1, pageSize);
+    }
 }

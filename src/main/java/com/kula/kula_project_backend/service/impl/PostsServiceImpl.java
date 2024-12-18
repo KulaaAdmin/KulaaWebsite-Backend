@@ -6,7 +6,6 @@ import com.kula.kula_project_backend.common.converter.PostsResponseDTOConverter;
 import com.kula.kula_project_backend.dao.*;
 import com.kula.kula_project_backend.dto.requestdto.PostsDTO;
 import com.kula.kula_project_backend.dto.responsedto.PostsResponseDTO;
-import com.kula.kula_project_backend.dto.responsedto.RestaurantsResponseDTO;
 import com.kula.kula_project_backend.entity.*;
 import com.kula.kula_project_backend.query.PostsQuery;
 import com.kula.kula_project_backend.service.IAzureBlobService;
@@ -16,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -469,6 +471,28 @@ public class PostsServiceImpl implements IPostsService {
         return new ResponseResult(400, "fail");
     }
 
+    /**
+     * Get posts list for feed.
+     * @param page the page number
+     * @param pageSize the number of posts in each page
+     * @return The paginated list of posts ordered by createdAt Desc.
+     */
+    @Override
+    public ResponseResult getFeed(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        Page<Posts> postsPage = postsRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+        List<PostsResponseDTO> convertedList = postsPage.getContent().stream()
+                .map(postsResponseDTOConverter::convertToResponseDTO)
+                .collect(Collectors.toList());
+        if (!convertedList.isEmpty()) {
+            return new ResponseResult(200, "success", convertedList);
+        } else {
+            return new ResponseResult(404, "no more posts");
+        }
+    }
+
     // Helper method for validate post
     private ResponseResult validatePost(PostsDTO postsDTO,Boolean is_update){
         Optional<Dishes> dish = Optional.empty();
@@ -510,8 +534,6 @@ public class PostsServiceImpl implements IPostsService {
         }
         /*save images*/
         if (postsDTO.getImages() != null){posts = uploadImages(postsDTO.getImages(),posts);}
-        posts.setNegativeReview(textReviewService.policy.sanitize(postsDTO.getNegativeReview()));
-        posts.setPositiveReview(textReviewService.policy.sanitize(postsDTO.getPositiveReview()));
         posts.setRating(postsDTO.getRating());
         /* Transfer tagName to tagId*/
         ArrayList<ObjectId> tagIds = new ArrayList<>();
