@@ -104,10 +104,9 @@ public class UsersController {
         }
         return usersService.sendEmail(to, subject, text);
     }
-    //@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST})
-    @PostMapping("/verifyEmailCode1")
-    public ResponseResult verifyEmailCode(@RequestParam("email") String email, @RequestParam("code") String code) {
-        System.out.println('T');
+
+    @PostMapping("/verifyEmailCode")
+    public ResponseResult verifyEmailCode(@RequestParam String email, @RequestParam String code) {
         return usersService.checkEmailCode(email, code);
     }
     /**

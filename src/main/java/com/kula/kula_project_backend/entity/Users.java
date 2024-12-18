@@ -40,11 +40,8 @@ public class Users {
     /**
      * The id of the bookmarks associated with the user.
      */
-
-
     @Field("bookmarks_id")
     private ObjectId bookMarksId;
-
 
     /**
      * The id of the following groups associated with the user.
