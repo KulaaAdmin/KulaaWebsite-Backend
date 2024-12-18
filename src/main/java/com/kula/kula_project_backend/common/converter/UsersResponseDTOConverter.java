@@ -19,11 +19,18 @@ public class UsersResponseDTOConverter {
         dto.setEmail(users.getEmail());
         dto.setProfileId(users.getProfileId().toString());
         dto.setPhoneNumber(users.getPhoneNumber());
-        dto.setFirstName(users.getFirstName());
-        dto.setLastName(users.getLastName());
+        if (users.getFirstName() != null){
+            dto.setFirstName(users.getFirstName());
+        }
+        if (users.getLastName() != null){
+            dto.setLastName(users.getLastName());
+        }
         dto.setAdmin(users.isAdmin());
         dto.setSuspended(users.isSuspend());
-        dto.setBookMarksId(users.getBookMarksId().toString());
+        if (users.getBookMarksId() != null){
+            dto.setBookMarksId(users.getBookMarksId().toString());
+        }
+        dto.setUserType(users.getUserType());
 
         return dto;
 

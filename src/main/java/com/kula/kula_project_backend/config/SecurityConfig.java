@@ -11,8 +11,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 /**
  * SecurityConfig is a configuration class that sets up security settings for the application.
@@ -50,19 +52,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .csrf().disable()
 //                .authorizeRequests()
 //                .antMatchers("/api/public/**").permitAll()
-//                .antMatchers("/users/save").permitAll()
-//                .antMatchers("/users/login").permitAll()
+               
 //                .anyRequest().authenticated()
 //                .and()
 //                .httpBasic()
 //                .and()
 //                .addFilter(jwtAuthenticationFilter())
 //                .addFilter(jwtAuthorizationFilter());
-                .csrf().disable() // 禁用CSRF保护
-                .authorizeRequests()
-                .anyRequest().permitAll() // 允许所有请求
+                .cors()  // Use WebMvcConfig CORS
                 .and()
-                .httpBasic().disable();
+                .csrf().disable() // 禁用CSRF保护
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers(
+                    "/swagger-ui/**", 
+                    "/swagger-ui.html",
+                    "/swagger-ui",
+                    "swagger-ui/index.html",
+                    "/api-docs/**",
+                    "/webjars/**" 
+                ).permitAll()
+                .antMatchers("/users/login","/users/save", "/users/sendEmail","/users/verifyEmailCode1").permitAll()
+                // .permitAll()
+                //.antMatchers("/test/t1").hasAuthority("Admin")
+//                .anyRequest().authenticated() // All other requests need JWT
+                .anyRequest().permitAll()  // Test integration
+                .and()
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .httpBasic();
     }
     /**
      * Creates a JwtAuthenticationFilter bean.
@@ -72,14 +92,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         return new JwtAuthenticationFilter(authenticationManager(), tokenProvider);
     }
-    /**
-     * Creates a JwtAuthorizationFilter bean.
-     * @return A JwtAuthorizationFilter instance.
-     */
-    @Bean
-    public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
-        return new JwtAuthorizationFilter(authenticationManager(), tokenProvider);
-    }
+    // /**
+    //  * Creates a JwtAuthorizationFilter bean.
+    //  * @return A JwtAuthorizationFilter instance.
+    //  */
+    // @Bean
+    // public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
+    //     return new JwtAuthorizationFilter(authenticationManager(), tokenProvider);
+    // }
     /**
      * Creates an AuthenticationManager bean.
      * @return An AuthenticationManager instance.

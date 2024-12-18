@@ -93,5 +93,5 @@ public class PostsResponseDTO implements Serializable {
     /**
      * The rating of the post.
      */
-    private int rating;
+    private double rating;
 }

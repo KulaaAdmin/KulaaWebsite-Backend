@@ -3,12 +3,17 @@ package com.kula.kula_project_backend.controller;
 import com.kula.kula_project_backend.dto.requestdto.LoginDTO;
 import com.kula.kula_project_backend.common.ResponseResult;
 import com.kula.kula_project_backend.dto.requestdto.UsersDTO;
+import com.kula.kula_project_backend.entity.Posts;
+import com.kula.kula_project_backend.entity.Users;
 import com.kula.kula_project_backend.query.UsersQuery;
 import com.kula.kula_project_backend.service.impl.EmailServiceImpl;
 import com.kula.kula_project_backend.service.impl.UsersServiceImpl;
 import com.kula.kula_project_backend.util.EmailUtil;
+import org.springframework.data.domain.Page;
+import org.apache.catalina.User;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,6 +108,12 @@ public class UsersController {
         }
         return usersService.sendEmail(to, subject, text);
     }
+    //@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/verifyEmailCode1")
+    public ResponseResult verifyEmailCode(@RequestParam("email") String email, @RequestParam("code") String code) {
+        System.out.println('T');
+        return usersService.checkEmailCode(email, code);
+    }
     /**
      * Endpoint to get the average rating of a user.
      * @param userId The id of the user.
@@ -141,7 +152,21 @@ public class UsersController {
     @GetMapping("/getBookmarks/{userId}")
     public ResponseResult getBookmarks(@PathVariable ObjectId userId) {
         return usersService.getBookmarks(userId);
-
     }
 
+    /**
+     * Endpoint to get all users pageable, with random order for suggestion.
+     * Only couples of field will be output: _id, name, TODO:avatar
+     * @return The result of the get operation.
+     */
+    @GetMapping("/getUsersBrief/{page}")
+    public ResponseResult getRandomUsers(
+            @PathVariable int page, /* Page number shall start with 1 */
+            @RequestParam(defaultValue = "5") int pageSize) {
+
+        if (page < 1) {
+            return new ResponseResult(404,"Page number shall start with 1");
+        }
+        return usersService.getUsersBrief(page-1, pageSize);
+    }
 }

@@ -14,11 +14,13 @@ import com.kula.kula_project_backend.service.IUsersService;
 import com.kula.kula_project_backend.service.TwilioService;
 import com.kula.kula_project_backend.util.EmailUtil;
 import org.bson.types.ObjectId;
-import org.redisson.Redisson;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -42,6 +44,7 @@ import java.util.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.kula.kula_project_backend.common.converter.UsersResponseDTOConverter.convertToResponseDTO;
 /**
@@ -62,7 +65,7 @@ public class UsersServiceImpl implements IUsersService {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private UsersRepository UsersRepository;
+    private UsersRepository usersRepository;
     @Autowired
     private ProfilesRepository profilesRepository;
 
@@ -107,6 +110,10 @@ public class UsersServiceImpl implements IUsersService {
     @Override
     public ResponseResult login(String emailOrPhoneNumber, String password) {
         try {
+            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
+            Users user = usersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + emailOrPhoneNumber));
+            
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password)
             );
@@ -115,12 +122,9 @@ public class UsersServiceImpl implements IUsersService {
             // 获取 UserDetails
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // 使用 emailOrPhoneNumber 来确定用户,并获取必要信息
-            Users user = UsersRepository.findByEmailOrPhoneNumber(emailOrPhoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone number: " + emailOrPhoneNumber));
 
             String token = jwtTokenProvider.generateToken(authentication);
-
+            
             Map<String, Object> authInfo = new HashMap<>();
             authInfo.put("userId", user.getId().toString());
             authInfo.put("token", token);
@@ -129,7 +133,7 @@ public class UsersServiceImpl implements IUsersService {
 
         } catch (AuthenticationException e) {
             log.error("Login failed for: {}. Error: {}", emailOrPhoneNumber, e.getMessage());
-            return new ResponseResult(401, "Invalid email/phone number or password");
+            return new ResponseResult(401, "Invalid email or password");
         }
     }
 
@@ -148,29 +152,15 @@ public class UsersServiceImpl implements IUsersService {
 
         if ("email".equals(usersDTO.getRegistrationMethod())) {
             String email = usersDTO.getEmail();
-            if (email != null && UsersRepository.existsByEmail(email)) {
+            if (email != null && usersRepository.existsByEmail(email)) {
                 return new ResponseResult(400, "Email already exists.");
             }
             users.setEmail(email);
-            users.setPhoneNumber(null);
-
-            // Check if the front end request has a valid verification code attached inside the request body.
-            if (usersDTO.getVerificationCode() != null) {
-                boolean ifEmailCodeValid = this.checkEmailCode(email, usersDTO.getVerificationCode());
-                if (!ifEmailCodeValid) {
-                    return new ResponseResult(400, "Invalid verification code");
-                } else {
-                    // If the verification code is valid, the code will be removed from the Redis database.
-                    RBucket<String> bucket = redisson.getBucket(email);
-                    bucket.delete();
-                }
-            } else {
-                return new ResponseResult(400, "Verification code is required.");
-            }
+            // users.setPhoneNumber(null);
 
         } else if ("phone".equals(usersDTO.getRegistrationMethod())) {
             String phoneNumber = usersDTO.getPhoneNumber();
-            if (phoneNumber != null && UsersRepository.existsByPhoneNumber(phoneNumber)) {
+            if (phoneNumber != null && usersRepository.existsByPhoneNumber(phoneNumber)) {
                 return new ResponseResult(400, "Phone number already exists.");
             }
             users.setPhoneNumber(phoneNumber);
@@ -179,16 +169,18 @@ public class UsersServiceImpl implements IUsersService {
             return new ResponseResult(400, "Invalid registration method.");
         }
 
+        users.setPhoneNumber(usersDTO.getPhoneNumber());
         users.setFirstName(usersDTO.getFirstName());
         users.setLastName(usersDTO.getLastName());
         users.setUsername(usersDTO.getUsername());
         users.setPasswordHash(passwordEncoder.encode(usersDTO.getPassword()));
-        users.setAdmin(!usersDTO.isAdmin());
+        users.setAdmin(usersDTO.isAdmin());
         users.setSuspend(false);
         users.setCreatedAt(new Date());
         users.setUpdatedAt(new Date());
+        users.setUserType(usersDTO.getUserType());
 
-        UsersRepository.insert(users);
+        usersRepository.insert(users);
 
 
 
@@ -206,7 +198,7 @@ public class UsersServiceImpl implements IUsersService {
             profilesRepository.insert(profiles);
             if (profiles.getId() != null) {
                 users.setProfileId(profiles.getId());
-                UsersRepository.save(users);
+                usersRepository.save(users);
             }
 
             BookMarks bookMarks = new BookMarks();
@@ -216,7 +208,7 @@ public class UsersServiceImpl implements IUsersService {
             bookMarksRepository.insert(bookMarks);
             if (bookMarks.getId() != null) {
                 users.setBookMarksId(bookMarks.getId());
-                UsersRepository.save(users);
+                usersRepository.save(users);
             }
 
             FollowingGroups followingGroups = new FollowingGroups();
@@ -225,7 +217,7 @@ public class UsersServiceImpl implements IUsersService {
             followingGroupsRepository.insert(followingGroups);
             if (followingGroups.getId() != null) {
                 users.setFollowingGroupsId(followingGroups.getId());
-                UsersRepository.save(users);
+                usersRepository.save(users);
             }
 
 
@@ -241,7 +233,7 @@ public class UsersServiceImpl implements IUsersService {
      */
     @Override
     public ResponseResult getAll() {
-        List<Users> users = UsersRepository.findAll();
+        List<Users> users = usersRepository.findAll();
         List<UsersResponseDTO> responseList = new ArrayList<UsersResponseDTO>();
         for (Users user : users) {
             responseList.add(convertToResponseDTO(user));
@@ -259,7 +251,7 @@ public class UsersServiceImpl implements IUsersService {
     @Override
     public ResponseResult update(UsersDTO usersDTO) {
 
-        Optional<Users> users = UsersRepository.findById(usersDTO.getId());
+        Optional<Users> users = usersRepository.findById(usersDTO.getId());
         if (users.isPresent()) {
             Users user = users.get();
             if (usersDTO.getEmail() != null) {
@@ -280,9 +272,12 @@ public class UsersServiceImpl implements IUsersService {
             if (usersDTO.getPasswordHash() != null) {
                 user.setPasswordHash(usersDTO.getPasswordHash());
             }
+            if (usersDTO.getUserType() != null){
+                user.setUserType(usersDTO.getUserType());
+            }
             user.setUpdatedAt(new Date());
 
-            UsersRepository.save(user);
+            usersRepository.save(user);
             return new ResponseResult(200, "success", user.getId().toString());
         }
         return new ResponseResult(400, "fail");
@@ -338,7 +333,7 @@ public class UsersServiceImpl implements IUsersService {
      */
     @Override
     public ResponseResult getById(ObjectId id) {
-        Optional<Users> users = UsersRepository.findById(id);
+        Optional<Users> users = usersRepository.findById(id);
         if (users.isPresent()) {
             return new ResponseResult(200, "success", convertToResponseDTO(users.get()));
         }
@@ -352,11 +347,11 @@ public class UsersServiceImpl implements IUsersService {
      */
     @Override
     public ResponseResult assignProfile(ObjectId userId, ObjectId profileId) {
-        Optional<Users> users = UsersRepository.findById(userId);
+        Optional<Users> users = usersRepository.findById(userId);
         if (users.isPresent()) {
             Users user = users.get();
             user.setProfileId(profileId);
-            UsersRepository.save(user);
+            usersRepository.save(user);
             return new ResponseResult(200, "success", user.getId().toString());
         }
         return new ResponseResult(400, "fail");
@@ -377,7 +372,7 @@ public class UsersServiceImpl implements IUsersService {
         if (!EmailUtil.isValidEmail(to)) {
             return new ResponseResult(400, "Invalid email address");
         }
-        Boolean emailExists = UsersRepository.existsByEmail(to);
+        Boolean emailExists = usersRepository.existsByEmail(to);
         if (emailExists) {
             return new ResponseResult(400, "Email already exist");
         }
@@ -428,16 +423,24 @@ public class UsersServiceImpl implements IUsersService {
      * @return boolean indicating whether the verification code is valid.
      */
     @Override
-    public boolean checkEmailCode(String email, String code) {
-        RBucket<String> bucket = redisson.getBucket(email);
-        String codeInRedis = bucket.get();
-        if (codeInRedis == null) {
-            return false;
+    public ResponseResult checkEmailCode(String email, String code) {
+        System.out.println("e");
+        if(email!=null && code!=null){
+            RBucket<String> bucket = redisson.getBucket(email);
+            String codeInRedis = bucket.get();
+            if (codeInRedis == null) {
+                return new ResponseResult(400, "Verification code expired or does not exist.");
+            }
+            if (codeInRedis.equals(code)) {
+                bucket.delete();
+                return new ResponseResult(200, "Verification Success.");
+            }
+            System.out.println("b");
+            return new ResponseResult(400,"Incorrect verification code.");
+        }else{
+            System.out.println("a");
+            return new ResponseResult(400, "Verification code must not be null.");
         }
-        if (codeInRedis.equals(code)) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -447,7 +450,7 @@ public class UsersServiceImpl implements IUsersService {
      */
     @Override
     public ResponseResult getAverageRating(ObjectId userId) {
-        Optional<Users> users = UsersRepository.findById(userId);
+        Optional<Users> users = usersRepository.findById(userId);
         if (users.isPresent()) {
             Users user = users.get();
             Query query = new Query(Criteria.where("auth_id").is(user.getId()));
@@ -499,7 +502,7 @@ public class UsersServiceImpl implements IUsersService {
      **/
     @Override
     public ResponseResult getBookmarks(ObjectId userId) {
-        Optional<Users> users = UsersRepository.findById(userId);
+        Optional<Users> users = usersRepository.findById(userId);
         if (users.isPresent()) {
             Users user = users.get();
             Optional<BookMarks> bookMarks = bookMarksRepository.findById(user.getBookMarksId());
@@ -515,4 +518,27 @@ public class UsersServiceImpl implements IUsersService {
 
     }
 
+    /**
+     * Endpoint to get all users pageable, for suggestion on Social Homepage.
+     * Only couples of field will be output: _id, name, TODO:avatar
+     * @return The result of the get operation.
+     */
+    @Override
+    public ResponseResult getUsersBrief(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        List<Users> users = usersRepository.findAllByOrderByCreatedAtDesc(pageable).getContent();
+        List<Map<Object, String>> resultList = users.stream()
+                .map(u -> {
+                    Map<Object, String> map = new LinkedHashMap<>();
+                    map.put("id", u.getId().toString());
+                    map.put("username", u.getUsername());
+                    return map;
+                })
+                .collect(Collectors.toList());
+        if (!resultList.isEmpty()){
+            return new ResponseResult(200, "success", resultList);
+        } else {
+            return new ResponseResult(404, "No more users");
+        }
+    }
 }
