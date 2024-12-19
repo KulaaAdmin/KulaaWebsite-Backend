@@ -528,6 +528,7 @@ public class PostsServiceImpl implements IPostsService {
         posts.setAuthId(postsDTO.getAuthId());
         posts.setCreatedAt(new Date());
         posts.setDishId(postsDTO.getDishId());
+        posts.setRestaurantId(postsDTO.getRestaurantId());
         if (postsDTO.getImageURL() != null) {
             String[] imageURLs = postsDTO.getImageURL();
             posts.setImageURL(imageURLs);

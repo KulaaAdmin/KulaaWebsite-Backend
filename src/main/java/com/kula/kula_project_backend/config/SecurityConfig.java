@@ -70,6 +70,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors()  // Use WebMvcConfig CORS
+                .and()
                 .csrf().disable() // 禁用CSRF保护
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
