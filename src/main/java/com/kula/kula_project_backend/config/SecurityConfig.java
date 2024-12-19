@@ -213,7 +213,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/**").permitAll()
-                .antMatchers("/users/login", "/users/save", "/users/sendEmail","/users/verifyEmailCode").permitAll()
+                .antMatchers("/users/login", "/users/save", "/users/sendEmail","/users/verifyEmailCode1").permitAll()
 
                 // .permitAll()
                 // .antMatchers("/test/t1").hasAuthority("Admin")
