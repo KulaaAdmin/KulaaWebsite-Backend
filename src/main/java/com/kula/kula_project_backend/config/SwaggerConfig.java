@@ -17,5 +17,4 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("This is all APIs for kulaa!!!"));
     }
-    
 }

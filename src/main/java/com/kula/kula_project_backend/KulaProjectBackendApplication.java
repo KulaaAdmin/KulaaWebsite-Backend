@@ -13,19 +13,5 @@ public class KulaProjectBackendApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(KulaProjectBackendApplication.class, args);
-        
     }
-    
-    /* 
-     * Initial a root admin
-     */
-    @EventListener(ApplicationReadyEvent.class)
-    public void doSomethingAfterStartup() {
-        // RolesRepo.Query("ROOT").getPermissions().put(PermissionDefinition.canAssigRole,true)
-        // ..CanModifyRole
-        //
-        System.out.println("hello world, I have just started up");
-    }
-   
-
 }
