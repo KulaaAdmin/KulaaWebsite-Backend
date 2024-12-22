@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * TagsController is a REST controller that provides endpoints for managing tags.
  */
 //@CrossOrigin(origins = "http://10.12.38.127:8080")
-@CrossOrigin(origins = "http://172.20.10.6:8080")
+//@CrossOrigin(origins = "http://172.20.10.6:8080")
 @RequestMapping("/tags")
 @RestController
 public class TagsController {

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * The controller uses the ObjectId to get the ID of the posts.
  * The controller uses the RequestBody to get the request body of the request.
  */
-@CrossOrigin(origins = "http://172.20.10.6:8080")
+//@CrossOrigin(origins = "https://backend.kulaa.co.uk")
 @RestController
 @RequestMapping("/posts")
 public class PostsController {
