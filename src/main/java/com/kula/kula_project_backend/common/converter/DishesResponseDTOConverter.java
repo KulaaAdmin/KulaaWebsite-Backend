@@ -11,10 +11,9 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * DishesResponseDTOConverter is a utility class that provides a method to convert a Dishes entity to a DishesResponseDTO.
@@ -82,13 +81,13 @@ public class DishesResponseDTOConverter {
             dto.setRestaurantLogo(restaurant.get().getLogo());
             dto.setRestaurantAddress(restaurant.get().getAddress());
         }
+
         /* transfer tag id to tag name when expose */
-        ArrayList<String> tagNames = new ArrayList<>();
-        for (ObjectId tagId : dishes.getTags()){
-            Optional<Tags> tag = tagsRepository.findById(tagId);
-            tag.ifPresent(tags -> tagNames.add(tags.getTagName()));
-        }
-        dto.setTags(tagNames);
+        List<ObjectId> tagIds = dishes.getTags();
+        dto.setTags(StreamSupport.stream(tagsRepository.findAllById(tagIds).spliterator(), false)
+                .map(Tags::getTagName)
+                .collect(Collectors.toCollection(ArrayList::new)));
+
         dto.setCreatedAt(dishes.getCreatedAt());
         dto.setDescription(dishes.getDescription());
         dto.setDishName(dishes.getDishName());
