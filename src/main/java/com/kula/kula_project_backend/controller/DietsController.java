@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * The controller uses the DietsDTO to save the diets.
  */
 //@CrossOrigin(origins = "http://10.12.38.127:8080")
-@CrossOrigin(origins = "http://10.12.42.229:8080")
+//@CrossOrigin(origins = "http://10.12.42.229:8080")
 @RequestMapping("/diets")
 @RestController
 public class DietsController {

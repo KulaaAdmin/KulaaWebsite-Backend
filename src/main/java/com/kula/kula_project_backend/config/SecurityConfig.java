@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 
+
 /**
  * SecurityConfig is a configuration class that sets up security settings for
  * the application.
@@ -70,8 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors()  // Use WebMvcConfig CORS
-                .and()
+                .cors().and()
                 .csrf().disable() // 禁用CSRF保护
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -80,6 +80,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // .anyRequest().authenticated()
                 // most GET requests can access without token
+
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/posts/all").permitAll()
 
                 .antMatchers(HttpMethod.GET,
                         "/bookmarker/getBookMarksByUserId/**",

@@ -41,16 +41,16 @@ public class PostsResponseDTOConverter {
             dto.setDishId(posts.getDishId().toString());
         }
         /* transfer tag id to tag name when expose */
+        ArrayList<String> tagNames = new ArrayList<>();
         if (posts.getTags()!=null){
-            ArrayList<String> tagNames = new ArrayList<>();
             for (ObjectId tagId:posts.getTags()){
                 if (tagId!= null){  /* Some entries in post database schema contains tags that has been dropped */
                     Optional<Tags> tag = tagsRepository.findById(tagId);
                     tag.ifPresent(tags -> tagNames.add(tags.getTagName()));
                 }
             }
-            dto.setTags(tagNames);
         }
+        dto.setTags(tagNames);
         dto.setContent(posts.getContent());
         dto.setCreatedAt(posts.getCreatedAt());
         dto.setUpdatedAt(posts.getUpdatedAt());
