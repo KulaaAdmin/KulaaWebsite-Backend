@@ -244,7 +244,6 @@ public class DishServiceImpl implements IDishService {
 		List<DishesResponseDTO> dishList = new ArrayList<>();
 		if (!dishes.isEmpty()) {
 			for (Dishes dish : dishes) {
-                Optional<Restaurant> restaurant = restaurantRepository.findById(dish.getRestaurantId());
 				DishesResponseDTO dto = dishesResponseDTOConverter.convertToResponseDTO(dish);
 				dishList.add(dto);
 			}
