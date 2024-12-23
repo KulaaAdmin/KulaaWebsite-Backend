@@ -54,5 +54,5 @@ public interface IDishService {
 
 	ResponseResult getTrendingDishByTagsAndLocation(List<String> tags, String location);
 
-    ResponseResult getDishNames();
+    ResponseResult getDishesInRestaurant(ObjectId restaurantId);
 }

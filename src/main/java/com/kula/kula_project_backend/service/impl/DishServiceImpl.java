@@ -601,12 +601,14 @@ public class DishServiceImpl implements IDishService {
 	/**
 	 * Get names of all dishes.
 	 *
-	 * @return List of restaurant names with ID.
+	 * @return List of dish names with ID.
 	 */
 
 	@Override
-	public ResponseResult getDishNames() {
-		List<Dishes> dishNames = dishRepository.dishIdAndNames();
+	public ResponseResult getDishesInRestaurant(ObjectId restaurantId) {
+		Optional<Restaurant> restaurantOptional = restaurantRepository.findById(restaurantId);
+		if (!restaurantOptional.isPresent()){ return new ResponseResult(400, "Restaurant Not Found.");}
+		List<Dishes> dishNames = dishRepository.dishIdAndNames(restaurantOptional.get().getId());
 		List<Map<Object,String>> resultList = dishNames.stream()
 				.map(r -> {
 					Map<Object,String> map = new LinkedHashMap<>();
@@ -615,7 +617,6 @@ public class DishServiceImpl implements IDishService {
 					return map;
 				})
 				.collect(Collectors.toList());
-
 
 		if (!dishNames.isEmpty()) {
 			return new ResponseResult(200, "success", resultList);

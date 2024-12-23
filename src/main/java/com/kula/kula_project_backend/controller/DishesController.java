@@ -272,12 +272,13 @@ public class DishesController {
         }
 
         /**
-         * Endpoint to get names of all dishes
+         * Endpoint to get dishes within a restaurant
+         * @param id of restaurant
          * @return The result of the get operation
          * */
-        @GetMapping("/names")
-        public ResponseResult getDishNames(){
-            return dishService.getDishNames();
+        @GetMapping("/namesInRestaurant/{id}")
+        public ResponseResult getDishNames(@PathVariable  ObjectId id){
+            return dishService.getDishesInRestaurant(id);
         }
     }
 
